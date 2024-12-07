@@ -1,8 +1,13 @@
 import { UserOutlined } from "@ant-design/icons";
 import logo from "../../assets/logo.jfif";
 import "./Header.scss";
+import { Link } from "react-router";
+import { useDispatch } from "react-redux";
+import { actionLogout } from "../../store";
 
 const Header = () => {
+  const dispatch = useDispatch();
+
   return (
     <div className="header">
       <div className="logo-header">
@@ -19,8 +24,15 @@ const Header = () => {
           <div className="hello">Xin chào</div>
           <div className="name-user">PDT005- Trần Thu Thuý</div>
           <div className="function-user">
-            <button className="change-password">Đổi mật khẩu</button>
-            <button className="logout-page">Đăng xuất</button>
+            <button className="change-password">
+              <Link to={"/change-password"}>Đổi mật khẩu</Link>
+            </button>
+            <button
+              className="logout-page"
+              onClick={() => dispatch(actionLogout.logout())}
+            >
+              Đăng xuất
+            </button>
           </div>
         </div>
       </div>

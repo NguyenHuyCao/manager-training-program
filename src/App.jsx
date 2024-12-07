@@ -4,6 +4,7 @@ import { Layout } from "antd";
 import HeaderPage from "./components/Header/Header";
 import SideBar from "./components/SideBar/SideBar";
 import { Outlet } from "react-router";
+import ModalLogout from "./components/Modal/ModalLogout";
 
 const { Sider, Content } = Layout;
 
@@ -23,6 +24,7 @@ function App() {
           </Sider>
           <Content>
             <Outlet />
+            <ModalLogout />
           </Content>
         </Layout>
       </Layout>
