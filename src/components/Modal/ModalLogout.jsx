@@ -5,7 +5,7 @@ import { useNavigate } from "react-router";
 import "./ModalLogout.scss";
 
 const ModalLogout = () => {
-  const isLogout = useSelector((state) => state.isLogout);
+  const isLogout = useSelector((state) => state.logout.isLogout);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 

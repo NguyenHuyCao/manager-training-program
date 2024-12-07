@@ -5,6 +5,7 @@ import HeaderPage from "./components/Header/Header";
 import SideBar from "./components/SideBar/SideBar";
 import { Outlet } from "react-router";
 import ModalLogout from "./components/Modal/ModalLogout";
+import ModalAddPermission from "./components/Modal/ModalAddPermission";
 
 const { Sider, Content } = Layout;
 
@@ -17,7 +18,6 @@ function App() {
     <>
       <Layout>
         <HeaderPage />
-
         <Layout>
           <Sider width="25%" style={siderStyle}>
             <SideBar />
@@ -28,6 +28,7 @@ function App() {
           </Content>
         </Layout>
       </Layout>
+      <ModalAddPermission />
     </>
   );
 }

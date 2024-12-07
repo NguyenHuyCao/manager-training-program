@@ -4,6 +4,7 @@ import HomePage from "./components/Home/Home.jsx";
 import ChangePassword from "./components/ChangePassword/ChangePassword.jsx";
 import ForgotPassword from "./components/ForgotPassword/ForgotPassword.jsx";
 import { Routes, Route } from "react-router";
+import ManagePermission from "./components/ManagePermission/ManagePermission.jsx";
 
 const Layout = () => {
   return (
@@ -13,6 +14,7 @@ const Layout = () => {
       <Route path="/" element={<App />}>
         <Route index element={<HomePage />} />
         <Route path="change-password" element={<ChangePassword />} />
+        <Route path="manage-permission" element={<ManagePermission />} />
       </Route>
     </Routes>
   );

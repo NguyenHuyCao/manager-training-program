@@ -18,6 +18,22 @@ const logout = createSlice({
 
 export const actionLogout = logout.actions;
 
-const store = configureStore({ reducer: logout.reducer });
+const addPermission = createSlice({
+  name: "permission",
+  initialState: {
+    isShowAddPermission: false,
+  },
+  reducers: {
+    isShowModal(state) {
+      state.isShowAddPermission = !state.isShowAddPermission;
+    },
+  },
+});
+
+export const actionIsShowAddPermission = addPermission.actions;
+
+const store = configureStore({
+  reducer: { logout: logout.reducer, showAddPermission: addPermission.reducer },
+});
 
 export default store;
