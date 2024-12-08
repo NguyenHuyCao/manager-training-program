@@ -1,0 +1,88 @@
+// /* Tổng quát */
+// .manage-unit {
+//   padding: 20px;
+//   font-family: Arial, sans-serif;
+
+//   .header-home-page {
+//     font-size: 24px;
+//     font-weight: bold;
+//     margin-bottom: 20px;
+//     text-align: center;
+//     color: #333;
+//   }
+
+//   .btn-add {
+//     display: flex;
+//     justify-content: flex-end;
+//     align-items: center;
+//     margin-bottom: 15px;
+
+//     .add-success {
+//       display: flex;
+//       align-items: center;
+//       color: #52c41a;
+//       font-weight: 500;
+//       margin-right: 20px;
+
+//       svg {
+//         margin-right: 5px;
+//         font-size: 18px;
+//       }
+//     }
+
+//     .btn {
+//       display: flex;
+//       align-items: center;
+//       background-color: #1890ff;
+//       color: #fff;
+//       font-size: 16px;
+//       padding: 8px 16px;
+//       border: none;
+//       border-radius: 4px;
+//       cursor: pointer;
+//       transition: background-color 0.3s ease;
+
+//       &:hover {
+//         background-color: #40a9ff;
+//       }
+
+//       svg {
+//         margin-right: 8px;
+//         font-size: 18px;
+//       }
+//     }
+//   }
+
+//   .ant-table {
+//     border-radius: 8px;
+//     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+//     .ant-table-thead > tr > th {
+//       background-color: #fafafa;
+//       font-weight: bold;
+//       text-align: center;
+//       color: #555;
+//     }
+
+//     .ant-table-tbody > tr > td {
+//       text-align: center;
+//     }
+
+//     .ant-pagination {
+//       margin-top: 20px;
+
+//       .ant-pagination-item {
+//         border-radius: 50%;
+//       }
+
+//       .ant-pagination-item-active {
+//         background-color: #1890ff;
+//         border-color: #1890ff;
+
+//         a {
+//           color: #fff;
+//         }
+//       }
+//     }
+//   }
+// }

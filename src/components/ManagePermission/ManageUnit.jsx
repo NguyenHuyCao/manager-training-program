@@ -1,58 +1,49 @@
-import "./ManagePermission.scss";
+import "./ManageUnit.scss";
 import { AppstoreAddOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { Table } from "antd";
 import { useState } from "react";
-import { actionIsShowAddPermission } from "../../store";
+import { actionAddUnit } from "../../store";
 import { useDispatch, useSelector } from "react-redux";
 
-const ManagePermission = () => {
+const ManageUnit = () => {
   const data = [
     {
       key: "1",
       code: "PDT",
       permission: "Phòng đào tạo",
-      description: "Các chức năng hỗ trợ phòng đào tạo quản lý.",
     },
     {
       key: "2",
       code: "TK",
       permission: "Khoa",
-      description: "Các chức năng của các trường khoa.",
     },
     {
       key: "3",
       code: "TK",
       permission: "Khoa",
-      description: "Các chức năng của các trường khoa.",
     },
     {
       key: "4",
       code: "TK",
       permission: "Khoa",
-      description: "Các chức năng của các trường khoa.",
     },
     {
       key: "5",
       code: "TK",
       permission: "Khoa",
-      description: "Các chức năng của các trường khoa.",
     },
     {
       key: "6",
       code: "TK",
       permission: "Khoa",
-      description: "Các chức năng của các trường khoa.",
     },
     {
       key: "7",
       code: "TK",
       permission: "Khoa",
-      description: "Các chức năng của các trường khoa.",
     },
   ];
-  const isSuccessData = useSelector(
-    (state) => state.addPermission.isSuccessData
-  );
+  const isSuccessData = useSelector((state) => state.addUnit.isSuccessData);
   const dispatch = useDispatch();
 
   // State for pagination
@@ -75,25 +66,20 @@ const ManagePermission = () => {
       key: "key",
     },
     {
-      title: "Mã nhóm quyền",
+      title: "Mã nhóm",
       dataIndex: "code",
       key: "code",
     },
     {
-      title: "Nhóm quyền",
+      title: "Nhóm người dùng",
       dataIndex: "permission",
       key: "permission",
-    },
-    {
-      title: "Mô tả",
-      dataIndex: "description",
-      key: "description",
     },
   ];
 
   return (
     <div>
-      <div className="header-home-page">Quản lý nhóm quyền</div>
+      <div className="header-home-page">Quản lý Đơn vị</div>
       <div className="btn-add">
         {isSuccessData && (
           <div className="add-success">
@@ -102,7 +88,7 @@ const ManagePermission = () => {
         )}
         <button
           className="btn"
-          onClick={() => dispatch(actionIsShowAddPermission.isShowModal())}
+          onClick={() => dispatch(actionAddUnit.isShowModal())}
         >
           <AppstoreAddOutlined /> <span>Thêm mới</span>
         </button>
@@ -124,4 +110,4 @@ const ManagePermission = () => {
   );
 };
 
-export default ManagePermission;
+export default ManageUnit;

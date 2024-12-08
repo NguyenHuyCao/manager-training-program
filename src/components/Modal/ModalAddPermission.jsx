@@ -1,9 +1,14 @@
 import "./ModalAddPermission.scss";
 import { useState } from "react";
 import { Modal, Input, Checkbox, Button } from "antd";
+import { actionIsShowAddPermission } from "../../store";
+import { useSelector, useDispatch } from "react-redux";
 
 const ModalAddPermission = () => {
-  const [visible, setVisible] = useState(true);
+  const isShow = useSelector(
+    (state) => state.addPermission.isShowAddPermission
+  );
+  const dispatch = useDispatch();
 
   const categories = [
     "Quản lý Khoa",
@@ -30,11 +35,13 @@ const ModalAddPermission = () => {
   });
 
   const handleCloseModal = () => {
-    setVisible(false);
+    dispatch(actionIsShowAddPermission.isShowModal());
+    // dispatch(actionIsShowAddPermission.successData());
   };
 
   const handleSave = () => {
     // Lọc dữ liệu permissions từ state
+
     const permissions = {};
 
     categories.forEach((category) => {
@@ -55,6 +62,7 @@ const ModalAddPermission = () => {
 
     console.log("Saved Data: ", result);
     handleCloseModal();
+    dispatch(actionIsShowAddPermission.successData());
   };
 
   const handleCheckboxChange = (category, action, checked) => {
@@ -80,7 +88,7 @@ const ModalAddPermission = () => {
       {/* Modal */}
       <Modal
         title={<div className="modal-title">Thêm mới Nhóm quyền</div>}
-        visible={visible}
+        open={isShow}
         onCancel={handleCloseModal}
         footer={[
           <Button key="back" onClick={handleCloseModal}>

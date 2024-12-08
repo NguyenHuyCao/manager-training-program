@@ -1,11 +1,11 @@
-import "./ManagePermission.scss";
+import "./ManageUsers.scss";
 import { AppstoreAddOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { Table } from "antd";
 import { useState } from "react";
 import { actionIsShowAddPermission } from "../../store";
 import { useDispatch, useSelector } from "react-redux";
 
-const ManagePermission = () => {
+const ManageUsers = () => {
   const data = [
     {
       key: "1",
@@ -93,7 +93,7 @@ const ManagePermission = () => {
 
   return (
     <div>
-      <div className="header-home-page">Quản lý nhóm quyền</div>
+      <div className="header-home-page">Quản lý Người dùng</div>
       <div className="btn-add">
         {isSuccessData && (
           <div className="add-success">
@@ -124,4 +124,4 @@ const ManagePermission = () => {
   );
 };
 
-export default ManagePermission;
+export default ManageUsers;
