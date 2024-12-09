@@ -12,7 +12,7 @@ const ForgotPassword = () => {
   const handleForgot = (e) => {
     e.preventDefault();
     console.log("Logging in...", codeLogin);
-    navigate("/login");
+    navigate("/");
   };
 
   return (

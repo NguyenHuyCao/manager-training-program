@@ -21,35 +21,56 @@ const ManagePermission = () => {
     },
     {
       key: "3",
-      code: "TK",
-      permission: "Khoa",
-      description: "Các chức năng của các trường khoa.",
+      code: "GV",
+      permission: "Giảng viên",
+      description:
+        "Chức năng dành cho giảng viên quản lý lớp học và sinh viên.",
     },
     {
       key: "4",
-      code: "TK",
-      permission: "Khoa",
-      description: "Các chức năng của các trường khoa.",
+      code: "SV",
+      permission: "Sinh viên",
+      description:
+        "Quyền truy cập tài nguyên học tập và quản lý cá nhân của sinh viên.",
     },
     {
       key: "5",
-      code: "TK",
-      permission: "Khoa",
-      description: "Các chức năng của các trường khoa.",
+      code: "QLKH",
+      permission: "Quản lý khoa học",
+      description: "Chức năng hỗ trợ quản lý nghiên cứu khoa học và dự án.",
     },
     {
       key: "6",
-      code: "TK",
-      permission: "Khoa",
-      description: "Các chức năng của các trường khoa.",
+      code: "TT",
+      permission: "Thư viện",
+      description: "Quyền quản lý tài liệu và hệ thống thư viện.",
     },
     {
       key: "7",
-      code: "TK",
-      permission: "Khoa",
-      description: "Các chức năng của các trường khoa.",
+      code: "HTQT",
+      permission: "Hợp tác quốc tế",
+      description: "Hỗ trợ các hoạt động hợp tác với đối tác quốc tế.",
+    },
+    {
+      key: "8",
+      code: "KT",
+      permission: "Kế toán",
+      description: "Chức năng hỗ trợ quản lý tài chính và kế toán.",
+    },
+    {
+      key: "9",
+      code: "HCQT",
+      permission: "Hành chính quản trị",
+      description: "Quản lý các công việc hành chính và cơ sở vật chất.",
+    },
+    {
+      key: "10",
+      code: "ND",
+      permission: "Người dùng thường",
+      description: "Quyền truy cập cơ bản cho người dùng thông thường.",
     },
   ];
+
   const isSuccessData = useSelector(
     (state) => state.addPermission.isSuccessData
   );
@@ -73,6 +94,7 @@ const ManagePermission = () => {
       title: "STT",
       dataIndex: "key",
       key: "key",
+      className: "stt-column",
     },
     {
       title: "Mã nhóm quyền",

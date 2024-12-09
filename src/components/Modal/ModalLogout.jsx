@@ -11,7 +11,7 @@ const ModalLogout = () => {
 
   const handleLogout = () => {
     dispatch(actionLogout.login());
-    navigate("/login");
+    navigate("/");
   };
 
   return (

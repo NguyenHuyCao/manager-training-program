@@ -11,9 +11,9 @@ import ManageUsers from "./components/ManagePermission/ManageUsers.jsx";
 const Layout = () => {
   return (
     <Routes>
-      <Route path="/login" index element={<LoginPage />} />
+      <Route path="/" index element={<LoginPage />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/" element={<App />}>
+      <Route path="/home" element={<App />}>
         <Route index element={<HomePage />} />
         <Route path="change-password" element={<ChangePassword />} />
         <Route path="manage-permission" element={<ManagePermission />} />

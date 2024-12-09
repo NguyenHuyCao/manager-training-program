@@ -2,7 +2,9 @@
   .header-home-page {
     font-size: 16px;
     font-weight: bold;
+    text-align: start;
     margin-bottom: 20px;
+    color: #454c8e;
   }
 
   .btn-add {
@@ -62,10 +64,6 @@
         align-items: center;
         font-size: 16px;
         cursor: pointer;
-
-        svg {
-          margin-right: 5px;
-        }
 
         &:hover {
           background-color: #5c6e88;

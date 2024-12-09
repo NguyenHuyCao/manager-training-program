@@ -19,30 +19,71 @@ const ManageUnit = () => {
     },
     {
       key: "3",
-      code: "TK",
-      permission: "Khoa",
+      code: "HC",
+      permission: "Hành chính",
     },
     {
       key: "4",
-      code: "TK",
-      permission: "Khoa",
+      code: "KT",
+      permission: "Kế toán",
     },
     {
       key: "5",
-      code: "TK",
-      permission: "Khoa",
+      code: "CNTT",
+      permission: "Công nghệ thông tin",
     },
     {
       key: "6",
-      code: "TK",
-      permission: "Khoa",
+      code: "YTP",
+      permission: "Y tế dự phòng",
     },
     {
       key: "7",
-      code: "TK",
-      permission: "Khoa",
+      code: "DT",
+      permission: "Đào tạo",
+    },
+    {
+      key: "8",
+      code: "TT",
+      permission: "Thư viện",
+    },
+    {
+      key: "9",
+      code: "QT",
+      permission: "Quản trị",
+    },
+    {
+      key: "10",
+      code: "PTC",
+      permission: "Phát triển chung",
+    },
+    {
+      key: "11",
+      code: "NN",
+      permission: "Ngoại ngữ",
+    },
+    {
+      key: "12",
+      code: "GDTC",
+      permission: "Giáo dục thể chất",
+    },
+    {
+      key: "13",
+      code: "CTSV",
+      permission: "Công tác sinh viên",
+    },
+    {
+      key: "14",
+      code: "MT",
+      permission: "Môi trường",
+    },
+    {
+      key: "15",
+      code: "DL",
+      permission: "Du lịch",
     },
   ];
+
   const isSuccessData = useSelector((state) => state.addUnit.isSuccessData);
   const dispatch = useDispatch();
 

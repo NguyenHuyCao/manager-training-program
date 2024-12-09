@@ -25,7 +25,7 @@ const Header = () => {
           <div className="name-user">PDT005- Trần Thu Thuý</div>
           <div className="function-user">
             <button className="change-password">
-              <Link to={"/change-password"}>Đổi mật khẩu</Link>
+              <Link to={"/home/change-password"}>Đổi mật khẩu</Link>
             </button>
             <button
               className="logout-page"

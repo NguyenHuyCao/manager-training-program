@@ -26,16 +26,16 @@ const SideBar = () => {
         <div className="title">Quản trị</div>
         <div className="manager">
           <div className="manager-children">
-            <Link to={"/manage-unit"}>Quản lý Đơn vị</Link>
+            <Link to={"/home/manage-unit"}>Quản lý Đơn vị</Link>
           </div>
           <div className="manager-children">
-            <Link to={"/manage-users"}>Quản lý Người dùng</Link>
+            <Link to={"/home/manage-users"}>Quản lý Người dùng</Link>
           </div>
           <div className="manager-children">
             <Link>Quản lý Tài khoản Người dùng</Link>
           </div>
           <div className="manager-children">
-            <Link to={"/manage-permission"}>Quản lý Nhóm quyền</Link>
+            <Link to={"/home/manage-permission"}>Quản lý Nhóm quyền</Link>
           </div>
         </div>
       </div>

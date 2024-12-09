@@ -1,9 +1,9 @@
 .custom-modal {
-  margin-top: -75px;
+  margin-top: -70px;
 
   .ant-modal-header {
-    border-bottom: 2px solid #ccc; // Tách biệt tiêu đề với nội dung
-    padding-bottom: 10px;
+    // border-bottom: 2px solid #ccc; // Tách biệt tiêu đề với nội dung
+    // padding-bottom: 10px;
   }
 
   .modal-title {
@@ -14,7 +14,7 @@
   }
 
   .ant-modal-body {
-    padding-top: 15px;
+    padding-top: 10px;
   }
 }
 
@@ -31,7 +31,7 @@
 
     label {
       flex-shrink: 0;
-      width: 120px; // Độ rộng cố định cho tiêu đề
+      width: 120px;
     }
 
     .ant-form-item {
@@ -74,7 +74,6 @@
     background-color: #f5f5f5;
   }
 
-  // Căn giữa checkbox trong các ô
   .checkbox {
     display: flex;
     align-items: center;
