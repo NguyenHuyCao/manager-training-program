@@ -7,6 +7,7 @@ import { Outlet } from "react-router";
 import ModalLogout from "./components/Modal/ModalLogout";
 import ModalAddPermission from "./components/Modal/ModalAddPermission";
 import ModalAddUnit from "./components/Modal/ModalAddUnit";
+import ModalAddUser from "./components/Modal/ModalAddUser";
 
 const { Sider, Content } = Layout;
 
@@ -31,6 +32,7 @@ function App() {
       </Layout>
       <ModalAddPermission />
       <ModalAddUnit />
+      <ModalAddUser />
     </>
   );
 }

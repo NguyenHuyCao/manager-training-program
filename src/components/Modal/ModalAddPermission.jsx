@@ -36,12 +36,9 @@ const ModalAddPermission = () => {
 
   const handleCloseModal = () => {
     dispatch(actionIsShowAddPermission.isShowModal());
-    // dispatch(actionIsShowAddPermission.successData());
   };
 
   const handleSave = () => {
-    // Lọc dữ liệu permissions từ state
-
     const permissions = {};
 
     categories.forEach((category) => {
@@ -57,7 +54,7 @@ const ModalAddPermission = () => {
       code: formData.code,
       permission: formData.permission,
       description: formData.description,
-      permissions: permissions, // Dữ liệu permissions đã chọn
+      permissions: permissions,
     };
 
     console.log("Saved Data: ", result);

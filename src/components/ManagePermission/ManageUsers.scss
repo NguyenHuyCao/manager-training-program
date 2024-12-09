@@ -12,28 +12,40 @@
     margin-bottom: 20px;
 
     .search-username {
-      width: 300px; // Đặt độ dài cố định cho ô input
-      margin-right: 10px; // Khoảng cách giữa input và các nút
-      margin-left: 20px; // Khoảng cách giữa input và lề trái
+      width: 300px;
+      margin-right: 10px;
+      margin-left: 20px;
+      font-size: 16px;
     }
 
     .actions {
       display: flex;
       align-items: center;
 
-      .filter {
+      .filter-button {
         display: flex;
         align-items: center;
         justify-content: center;
+        position: relative;
         width: 40px;
         height: 40px;
         padding: 4px;
         margin-right: 15px;
 
+        .dot-red {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          width: 8px;
+          height: 8px;
+          background-color: red;
+          border-radius: 5px;
+        }
+
         svg {
-          font-size: 20px; // Kích thước icon
-          stroke-width: 0.5px; // Độ dày nét của icon
-          color: #555; // Màu sắc icon (có thể thay đổi)
+          font-size: 20px;
+          stroke-width: 0.5px;
+          color: #555;
         }
 
         &:hover {
@@ -51,54 +63,69 @@
         font-size: 16px;
         cursor: pointer;
 
-        &:hover {
-          background-color: #454c8e;
+        svg {
+          margin-right: 5px;
         }
-      }
-    }
-  }
 
-  .ant-table {
-    .ant-table-thead > tr > th {
-      text-align: left; // Căn lề trái mặc định cho các tiêu đề cột
-    }
-
-    .ant-table-tbody > tr > td {
-      text-align: left; // Căn lề trái mặc định cho dữ liệu cột
-    }
-
-    // Căn giữa cột STT
-    .ant-table-cell {
-      &:nth-child(1) {
-        // Cột đầu tiên (STT)
-        text-align: center; // Căn giữa
-        width: 80px; // Đặt chiều rộng cố định nếu cần
+        &:hover {
+          background-color: #5c6e88;
+          color: #fff;
+        }
       }
     }
   }
 }
 
-.manage-users {
-  // Các styles khác...
+.filter-dropdown {
+  padding: 15px;
+  width: 350px; // Thay đổi chiều rộng của dropdown
 
-  .filter-modal-content {
-    .filter-item {
-      margin-bottom: 15px;
-      label {
-        font-weight: bold;
-        display: block;
-        margin-bottom: 5px;
-      }
+  .filter-title {
+    background-color: #fff;
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 16px; // Bôi đậm tiêu đề filter
+  }
 
-      .ant-select {
-        width: 100%;
-      }
+  .filter-item {
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%; // Đảm bảo các ô chọn đều trải đều theo chiều ngang
+
+    div {
+      width: 125px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    .modal-actions {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 20px;
+    .ant-select {
+      flex: 1; // Đảm bảo Select sẽ chiếm phần còn lại của dòng
+    }
+  }
+
+  .filter-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+    gap: 30px; // Tạo khoảng cách giữa các nút
+    width: 100%;
+
+    button {
+      width: 100px; // Đảm bảo các nút có chiều rộng đồng đều
+      text-align: center; // Căn giữa văn bản trong nút
+      background-color: #ccc;
+    }
+
+    .btn-filter {
+      background-color: #5c63a1;
+      color: #fff;
+
+      &:hover {
+        background-color: #5c63a1;
+      }
     }
   }
 }

@@ -4,10 +4,11 @@ import {
   FilterOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import { Input, Table } from "antd";
-import { useState } from "react";
+import { Input, Table, Select, Button, Popover, notification } from "antd";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { actionIsShowAddPermission } from "../../store";
+import { actionAddUser } from "../../store";
+import { useSelector } from "react-redux";
 
 const ManageUsers = () => {
   // Dữ liệu mẫu
@@ -18,100 +19,50 @@ const ManageUsers = () => {
       username: "Nguyễn Thị Hải Yến",
       usergroup: "Phòng đào tạo",
       department: "Toán - Tin",
-      email: "adb@gmail.com",
+      email: "yennht@edu.vn",
     },
     {
       key: "2",
       code: "PDT002",
-      username: "Trần Văn An",
+      username: "Trần Văn Nam",
       usergroup: "Phòng hành chính",
       department: "Hóa học",
-      email: "tva@gmail.com",
+      email: "namtv@edu.vn",
     },
-    {
-      key: "3",
-      code: "PDT003",
-      username: "Lê Minh Hoàng",
-      usergroup: "Phòng đào tạo",
-      department: "Vật lý",
-      email: "lmh@gmail.com",
-    },
-    {
-      key: "4",
-      code: "PDT004",
-      username: "Phạm Thị Hồng Nhung",
-      usergroup: "Phòng kế toán",
-      department: "Kế toán - Kiểm toán",
-      email: "pthn@gmail.com",
-    },
-    {
-      key: "5",
-      code: "PDT005",
-      username: "Nguyễn Văn Tâm",
-      usergroup: "Phòng đào tạo",
-      department: "Sinh học",
-      email: "nvt@gmail.com",
-    },
-    {
-      key: "6",
-      code: "PDT006",
-      username: "Đặng Thị Mai",
-      usergroup: "Phòng hành chính",
-      department: "Ngữ văn",
-      email: "dtm@gmail.com",
-    },
-    {
-      key: "7",
-      code: "PDT007",
-      username: "Vũ Thị Lan",
-      usergroup: "Phòng kế hoạch",
-      department: "Lịch sử",
-      email: "vtl@gmail.com",
-    },
-    {
-      key: "8",
-      code: "PDT008",
-      username: "Phan Quang Vinh",
-      usergroup: "Phòng đào tạo",
-      department: "Địa lý",
-      email: "pqv@gmail.com",
-    },
-    {
-      key: "9",
-      code: "PDT009",
-      username: "Bùi Thị Hạnh",
-      usergroup: "Phòng nhân sự",
-      department: "Tiếng Anh",
-      email: "bth@gmail.com",
-    },
-    {
-      key: "10",
-      code: "PDT010",
-      username: "Hoàng Văn Quang",
-      usergroup: "Phòng kế toán",
-      department: "Tin học",
-      email: "hvq@gmail.com",
-    },
+    // Add other rows as needed...
   ];
 
   const dispatch = useDispatch();
+  const isSuccessData = useSelector((state) => state.addUser.isSuccessData);
 
   // State cho tìm kiếm và phân trang
   const [searchText, setSearchText] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isFilter, setIsFilter] = useState(false);
+  const [isDot, setIsDot] = useState(false);
   const pageSize = 5;
 
+  // Các bộ lọc
+  const [userGroupFilter, setUserGroupFilter] = useState(null);
+  const [departmentFilter, setDepartmentFilter] = useState(null);
+
   // Xử lý tìm kiếm
-  // Xử lý tìm kiếm
-  const filteredData = data.filter((item) => {
-    const searchValue = searchText.toLowerCase();
-    return (
-      item.username.toLowerCase().includes(searchValue) ||
-      item.code.toLowerCase().includes(searchValue) ||
-      item.usergroup.toLowerCase().includes(searchValue) ||
-      item.email.toLowerCase().includes(searchValue)
-    );
-  });
+  const filteredData = data
+    .filter((item) => {
+      const searchValue = searchText.toLowerCase();
+      return (
+        item.username.toLowerCase().includes(searchValue) ||
+        item.code.toLowerCase().includes(searchValue) ||
+        item.usergroup.toLowerCase().includes(searchValue) ||
+        item.email.toLowerCase().includes(searchValue)
+      );
+    })
+    .filter((item) => {
+      return (
+        (userGroupFilter ? item.usergroup === userGroupFilter : true) &&
+        (departmentFilter ? item.department === departmentFilter : true)
+      );
+    });
 
   // Tính toán dữ liệu hiển thị cho trang hiện tại
   const startIndex = (currentPage - 1) * pageSize;
@@ -119,36 +70,12 @@ const ManageUsers = () => {
 
   // Cột của bảng
   const columns = [
-    {
-      title: "STT",
-      dataIndex: "key",
-      key: "key",
-    },
-    {
-      title: "Mã",
-      dataIndex: "code",
-      key: "code",
-    },
-    {
-      title: "Tên người dùng",
-      dataIndex: "username",
-      key: "username",
-    },
-    {
-      title: "Nhóm người dùng",
-      dataIndex: "usergroup",
-      key: "usergroup",
-    },
-    {
-      title: "Khoa",
-      dataIndex: "department",
-      key: "department",
-    },
-    {
-      title: "Email",
-      dataIndex: "email",
-      key: "email",
-    },
+    { title: "STT", dataIndex: "key", key: "key" },
+    { title: "Mã", dataIndex: "code", key: "code" },
+    { title: "Tên người dùng", dataIndex: "username", key: "username" },
+    { title: "Nhóm người dùng", dataIndex: "usergroup", key: "usergroup" },
+    { title: "Khoa", dataIndex: "department", key: "department" },
+    { title: "Email", dataIndex: "email", key: "email" },
   ];
 
   // Xử lý thay đổi trang
@@ -156,9 +83,84 @@ const ManageUsers = () => {
     setCurrentPage(page);
   };
 
+  const handleFilter = () => {
+    setIsFilter(!isFilter);
+    setIsDot(true);
+  };
+
+  // Hàm xử lý khi nhấn nút hủy
+  const handleReset = () => {
+    setUserGroupFilter(null);
+    setDepartmentFilter(null);
+    setIsFilter(false);
+    setIsDot(false);
+  };
+
+  // Popover content cho bộ lọc
+  const filterContent = (
+    <div className="filter-dropdown">
+      <div className="filter-title">Bộ lọc</div>
+      <div className="filter-item">
+        <div>Nhóm người dùng:</div>
+        <Select
+          style={{ width: 200 }}
+          value={userGroupFilter}
+          onChange={setUserGroupFilter}
+        >
+          <Select.Option value="Phòng đào tạo">Phòng đào tạo</Select.Option>
+          <Select.Option value="Phòng hành chính">
+            Phòng hành chính
+          </Select.Option>
+          <Select.Option value="Phòng kế toán">Phòng kế toán</Select.Option>
+          <Select.Option value="Phòng nhân sự">Phòng nhân sự</Select.Option>
+        </Select>
+      </div>
+      <div className="filter-item">
+        <div>Khoa:</div>
+        <Select
+          style={{ width: 200 }}
+          value={departmentFilter}
+          onChange={setDepartmentFilter}
+        >
+          <Select.Option value="Toán - Tin">Toán - Tin</Select.Option>
+          <Select.Option value="Hóa học">Hóa học</Select.Option>
+          <Select.Option value="Vật lý">Vật lý</Select.Option>
+          <Select.Option value="Sinh học">Sinh học</Select.Option>
+        </Select>
+      </div>
+      <div className="filter-actions">
+        <Button onClick={handleReset}>Hủy</Button>
+        <Button className="btn-filter" onClick={handleFilter}>
+          Lọc
+        </Button>
+      </div>
+    </div>
+  );
+
+  const [api, contextHolder] = notification.useNotification();
+
+  const openNotification = () => {
+    if (isSuccessData) {
+      api.success({
+        message: "Thành công",
+        description: "Thêm mới Người dùng thành công",
+        placement: "topLeft",
+      });
+    }
+  };
+  useEffect(() => {
+    openNotification();
+  }, [isSuccessData]);
+
+  const handleAddUser = () => {
+    dispatch(actionAddUser.isShowModal());
+    if (isSuccessData) dispatch(actionAddUser.isSuccessData());
+  };
+
   return (
     <div className="manage-users">
-      {/* Header */}
+      {contextHolder}
+
       <div className="header-home-page">Quản lý Người dùng</div>
 
       {/* Thanh công cụ tìm kiếm và thêm mới */}
@@ -173,19 +175,28 @@ const ManageUsers = () => {
           />
         </div>
         <div className="actions">
-          <button className="filter">
-            <FilterOutlined />
-          </button>
-          <button
-            className="btn"
-            onClick={() => dispatch(actionIsShowAddPermission())}
+          <Popover
+            content={filterContent}
+            trigger="click"
+            open={isFilter}
+            placement="bottomRight"
           >
+            <button
+              className={`filter-button ${
+                userGroupFilter || departmentFilter ? "active" : ""
+              }`}
+              onClick={() => setIsFilter(!isFilter)}
+            >
+              <FilterOutlined />
+              {isDot && <div className="dot-red"></div>}
+            </button>
+          </Popover>
+          <button className="btn" onClick={handleAddUser}>
             <AppstoreAddOutlined /> <span>Thêm mới</span>
           </button>
         </div>
       </div>
 
-      {/* Bảng hiển thị dữ liệu */}
       <div>
         <Table
           columns={columns}
