@@ -1,53 +1,135 @@
-$primary-color: #007bff; // Màu xanh chủ đạo
-$hover-color: #f0f0f0; // Màu nền khi hover
-$text-color: #333333; // Màu chữ mặc định
-$background-sidebar: #f8f9fa; // Màu nền của sidebar
-$border-color: #ddd; // Màu viền
-$active-color: #0056b3; // Màu khi mục được chọn
-$padding: 10px; // Padding cho các mục
-
 .container-sidebar {
+  // width: 250px;
+  height: 100vh;
+  background-color: #f5f5f5;
+  border-right: 1px solid #ddd;
   display: flex;
   flex-direction: column;
-  background-color: $background-sidebar;
-  width: auto;
-  // height: 100%; // Sidebar sẽ chiếm toàn bộ chiều cao của màn hình
-  box-sizing: border-box;
-  border-right: 1px solid $border-color;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
+  padding: 20px;
 
-  .title {
-    font-size: 16px;
-    font-weight: bold;
-    color: #fff;
-    background-color: #454c8e;
-    padding: 7px 0px 7px 15px;
-  }
-
-  .manager {
+  .logo-page {
     display: flex;
-    flex-direction: column;
-    flex-grow: 1; // Đảm bảo các mục chiếm không gian còn lại trong sidebar
+    justify-content: center;
+    // margin-bottom: 20px;
+    height: 9vh;
+    border-bottom: #ccc solid 1px;
+
+    img {
+      width: 100%;
+      height: 100%;
+      // border-radius: 50%;
+      object-fit: contain;
+    }
   }
 
-  .manager-children {
-    font-size: 16px;
-    color: #000;
-    padding: 7px 0 7px 25px;
-    margin: 0;
-    border: 1px solid $border-color;
-    cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    flex-shrink: 0;
+  .info-user {
+    display: flex;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
 
-    &:hover {
-      background-color: $hover-color;
-      color: $primary-color;
+    .icon-user {
+      font-size: 40px;
+      color: #555;
     }
 
-    &.active {
-      background-color: $primary-color;
-      color: white;
+    .info {
+      .name {
+        font-size: 18px;
+        font-weight: bold;
+        margin: 0;
+      }
+
+      .msv,
+      .role {
+        font-size: 14px;
+        color: #666;
+        margin: 2px 0;
+      }
     }
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 10px 0;
+  }
+
+  .manager-training-program,
+  .administration {
+    margin-bottom: 20px;
+
+    .title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .manager {
+      .manager-children {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+        cursor: pointer;
+
+        &:hover {
+          background-color: #e0e0e0;
+          color: rgb(145, 7, 7);
+        }
+
+        .icon {
+          font-size: 20px;
+          color: #555;
+        }
+
+        p {
+          margin: 0;
+          font-size: 14px;
+
+          a {
+            text-decoration: none;
+            color: #333;
+
+            &:hover {
+              text-decoration: underline;
+              color: #007bff;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+.manager-children {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  color: #ccc;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-weight: normal;
+
+  .icon {
+    margin-right: 10px;
+  }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  &.active {
+    color: rgb(145, 7, 7);
+    // font-weight: bold; /* Làm đậm chữ khi được chọn */
+    // border-left: 5px solid rgb(145, 7, 7);
+    // background-color: rgba(145, 7, 7, 0.1);
   }
 }
