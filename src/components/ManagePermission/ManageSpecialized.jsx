@@ -1,34 +1,40 @@
-import "./ManageSpecialized.scss";
-import { SearchOutlined, EditOutlined } from "@ant-design/icons";
-import { Input, Table, Tooltip } from "antd";
-import { useState } from "react";
-import { actionAddUnit } from "../../store";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import Header from "../Header/Header";
+import { Input, Table, Tooltip, Modal, Form, Input as AntdInput } from "antd";
+import { SearchOutlined, EditOutlined } from "@ant-design/icons";
 import { IoAdd } from "react-icons/io5";
+import Header from "../Header/Header";
+import { actionAddUnit } from "../../store";
+import "./ManageSpecialized.scss";
+import { getClass, updataClass } from "../../services/apiServices"; // Import the necessary functions
 
 const ManageSpecialized = () => {
-  const data = [
-    { key: "1", code: "PDT", permission: "Phòng đào tạo" },
-    { key: "2", code: "TK", permission: "Khoa" },
-    { key: "3", code: "HC", permission: "Hành chính" },
-    { key: "4", code: "KT", permission: "Kế toán" },
-    { key: "5", code: "CNTT", permission: "Công nghệ thông tin" },
-    { key: "6", code: "YTP", permission: "Y tế dự phòng" },
-    { key: "7", code: "DT", permission: "Đào tạo" },
-    { key: "8", code: "TT", permission: "Thư viện" },
-    { key: "9", code: "QT", permission: "Quản trị" },
-    { key: "10", code: "PTC", permission: "Phát triển chung" },
-    { key: "11", code: "NN", permission: "Ngoại ngữ" },
-    { key: "12", code: "GDTC", permission: "Giáo dục thể chất" },
-    { key: "13", code: "CTSV", permission: "Công tác sinh viên" },
-    { key: "14", code: "MT", permission: "Môi trường" },
-    { key: "15", code: "DL", permission: "Du lịch" },
-  ];
-
-  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
+  const [classData, setClassData] = useState([]); // Initialize with an empty array
   const [currentPage, setCurrentPage] = useState(1);
   const [searchText, setSearchText] = useState("");
+  const [isModalVisible, setIsModalVisible] = useState(false); // State for showing modal
+  const [editingClass, setEditingClass] = useState(null); // State to store the class being edited
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchClassData = async () => {
+      setLoading(true);
+      try {
+        const res = await getClass(); // Fetch class data
+        console.log("Class data response:", res);
+        if (res && res.value) {
+          setClassData(res.value); // Update state with the 'value' array from the response
+        }
+      } catch (error) {
+        console.error("Error fetching class data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClassData();
+  }, [dispatch]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -39,14 +45,39 @@ const ManageSpecialized = () => {
   };
 
   const handleEdit = (record) => {
-    console.log("Chỉnh sửa:", record);
-    // Thêm logic chỉnh sửa tại đây (ví dụ: mở modal hoặc chuyển trang)
+    setEditingClass(record);
+    setIsModalVisible(true); // Show modal when editing
   };
 
-  const filteredData = data.filter(
+  const handleModalOk = async () => {
+    // Logic to save the edited class
+    console.log("Edited class data:", editingClass);
+    const res = await updataClass(
+      editingClass.id,
+      editingClass.classId,
+      editingClass.className
+    );
+
+    console.log("res", res);
+    setIsModalVisible(false);
+  };
+
+  const handleModalCancel = () => {
+    setIsModalVisible(false); // Close modal without saving
+  };
+
+  const handleChange = (e) => {
+    setEditingClass({
+      ...editingClass,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  // Filter data based on search text
+  const filteredData = classData.filter(
     (item) =>
-      item.code.toLowerCase().includes(searchText.toLowerCase()) ||
-      item.permission.toLowerCase().includes(searchText.toLowerCase())
+      item.classId.toLowerCase().includes(searchText.toLowerCase()) ||
+      item.className.toLowerCase().includes(searchText.toLowerCase())
   );
 
   const pageSize = 5;
@@ -55,11 +86,11 @@ const ManageSpecialized = () => {
 
   const columns = [
     { title: "STT", dataIndex: "key", key: "key" },
-    { title: "MÃ LỚP CHUYÊN NGÀNH", dataIndex: "code", key: "code" },
+    { title: "MÃ LỚP CHUYÊN NGÀNH", dataIndex: "classId", key: "classId" },
     {
       title: "TÊN LỚP CHUYÊN NGÀNH",
-      dataIndex: "permission",
-      key: "permission",
+      dataIndex: "className",
+      key: "className",
     },
     {
       title: "Hành động",
@@ -111,9 +142,37 @@ const ManageSpecialized = () => {
               onChange: handlePageChange,
               total: filteredData.length,
             }}
+            loading={loading} // Show loading spinner while fetching data
           />
         </div>
       </div>
+
+      {/* Modal for editing class */}
+      <Modal
+        title="Chỉnh sửa lớp chuyên ngành"
+        open={isModalVisible}
+        onOk={handleModalOk}
+        onCancel={handleModalCancel}
+        okText="Lưu"
+        cancelText="Hủy"
+      >
+        <Form>
+          <Form.Item label="Mã lớp chuyên ngành">
+            <AntdInput
+              name="classId"
+              value={editingClass?.classId || ""}
+              onChange={handleChange}
+            />
+          </Form.Item>
+          <Form.Item label="Tên lớp chuyên ngành">
+            <AntdInput
+              name="className"
+              value={editingClass?.className || ""}
+              onChange={handleChange}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

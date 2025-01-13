@@ -6,53 +6,27 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { IoAdd } from "react-icons/io5";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./ManageGroupUsers.scss";
+import { getGroupUsers } from "../../services/apiServices";
 
 const ManageGroupUsers = () => {
   const [searchText, setSearchText] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
+  const [data, setData] = useState([]); // Hold the fetched group data
   const pageSize = 5;
 
-  const data = [
-    {
-      key: "1",
-      code: "G01",
-      name: "Nhóm 1",
-      description: "Nhóm quản trị",
-      isActive: true,
-    },
-    {
-      key: "2",
-      code: "G02",
-      name: "Nhóm 2",
-      description: "Nhóm giáo viên",
-      isActive: false,
-    },
-    {
-      key: "3",
-      code: "G03",
-      name: "Nhóm 3",
-      description: "Nhóm học sinh",
-      isActive: true,
-    },
-    {
-      key: "4",
-      code: "G04",
-      name: "Nhóm 4",
-      description: "Nhóm khách",
-      isActive: true,
-    },
-    {
-      key: "5",
-      code: "G05",
-      name: "Nhóm 5",
-      description: "Nhóm hỗ trợ",
-      isActive: false,
-    },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await getGroupUsers();
+      if (res && res.value) {
+        setData(res.value); // Populate data from API
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleSearch = (e) => {
     setSearchText(e.target.value);
@@ -70,27 +44,32 @@ const ManageGroupUsers = () => {
   const handleDelete = (record) => {
     Modal.confirm({
       title: "Xác nhận xoá",
-      content: `Bạn có chắc chắn muốn xoá nhóm "${record.name}"?`,
+      content: `Bạn có chắc chắn muốn xoá nhóm "${record.roleName}"?`,
       okText: "Xoá",
       cancelText: "Hủy",
-      onOk: () => {
-        console.log("Đã xoá nhóm:", record);
+      onOk: async () => {
+        // await deleteGroupUser(record.code);
+        setData((prevData) => prevData.filter((item) => item.id !== record.id)); // Remove deleted record from state
       },
     });
   };
 
   const handleAddNew = () => {
-    form.validateFields().then((values) => {
+    form.validateFields().then(async (values) => {
       console.log("Thông tin nhóm mới:", values);
-      setIsModalOpen(false);
-      form.resetFields();
+      // const res = await addGroupUser(values); // API request to add a new group
+      // if (res && res.data) {
+      //   setData((prevData) => [...prevData, res.data]); // Add new group to the data
+      //   setIsModalOpen(false);
+      //   form.resetFields();
+      // }
     });
   };
 
   const filteredData = data.filter(
     (item) =>
-      item.code.toLowerCase().includes(searchText.toLowerCase()) ||
-      item.name.toLowerCase().includes(searchText.toLowerCase())
+      item.roleId.toLowerCase().includes(searchText.toLowerCase()) ||
+      item.roleName.toLowerCase().includes(searchText.toLowerCase())
   );
 
   const startIndex = (currentPage - 1) * pageSize;
@@ -98,8 +77,8 @@ const ManageGroupUsers = () => {
 
   const columns = [
     { title: "STT", dataIndex: "key", key: "key" },
-    { title: "MÃ NHÓM NGƯỜI DÙNG", dataIndex: "code", key: "code" },
-    { title: "NHÓM NGƯỜI DÙNG", dataIndex: "name", key: "name" },
+    { title: "MÃ NHÓM NGƯỜI DÙNG", dataIndex: "roleId", key: "roleId" },
+    { title: "NHÓM NGƯỜI DÙNG", dataIndex: "roleName", key: "roleName" },
     { title: "MÔ TẢ", dataIndex: "description", key: "description" },
     {
       title: "HOẠT ĐỘNG",
@@ -167,7 +146,7 @@ const ManageGroupUsers = () => {
       {/* Modal Thêm mới */}
       <Modal
         title="Thêm Nhóm Người Dùng"
-        visible={isModalOpen}
+        open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         onOk={handleAddNew}
         okText="Lưu"
@@ -176,14 +155,14 @@ const ManageGroupUsers = () => {
         <Form form={form} layout="vertical">
           <Form.Item
             label="Mã Nhóm Người Dùng"
-            name="code"
+            name="roleId"
             rules={[{ required: true, message: "Vui lòng nhập mã nhóm" }]}
           >
             <Input placeholder="Nhập mã nhóm người dùng" />
           </Form.Item>
           <Form.Item
             label="Tên Nhóm Người Dùng"
-            name="name"
+            name="roleName"
             rules={[{ required: true, message: "Vui lòng nhập tên nhóm" }]}
           >
             <Input placeholder="Nhập tên nhóm người dùng" />

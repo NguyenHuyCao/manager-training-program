@@ -1,17 +1,16 @@
 .manage-users {
-  .header-home-page {
-    font-size: 16px;
-    font-weight: bold;
-    text-align: start;
-    margin-bottom: 20px;
-    color: #454c8e;
-  }
+  background-color: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 40px 30px 20px 30px;
+  margin: 20px 40px 50px 20px;
 
   .btn-add {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 40px;
+    margin-top: 20px;
 
     .search-username {
       width: 300px;

@@ -1,43 +1,53 @@
-import { Table, Input, Button, Tooltip, Modal } from "antd";
+import { Table, Input, Button, Tooltip, Modal, message } from "antd";
 import { EditOutlined, SearchOutlined } from "@ant-design/icons";
 import { IoAdd } from "react-icons/io5";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "../Header/Header";
 import "./ManageSubject.scss";
+import {
+  getSubject,
+  addSubject,
+  updateSubject,
+} from "../../services/apiServices";
 
 const ManageSubject = () => {
+  const [subjectData, setSubjectData] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newCode, setNewCode] = useState("");
+  const [newName, setNewName] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editId, setEditId] = useState(""); // Added editId for handling subject id in edit
+  const [editCode, setEditCode] = useState("");
+  const [editName, setEditName] = useState("");
   const pageSize = 5;
 
-  const data = [
-    {
-      key: "1",
-      code: "M01",
-      name: "Môn Toán",
-    },
-    {
-      key: "2",
-      code: "M02",
-      name: "Môn Lý",
-    },
-    {
-      key: "3",
-      code: "M03",
-      name: "Môn Hóa",
-    },
-    {
-      key: "4",
-      code: "M04",
-      name: "Môn Sinh",
-    },
-    {
-      key: "5",
-      code: "M05",
-      name: "Môn Văn",
-    },
-  ];
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const res = await getSubject();
+      if (res && res.value) {
+        const formattedData = res.value.map((item, index) => ({
+          key: index + 1,
+          id: item.id, // Using 'id' for the unique subject identifier
+          code: item.departmentId, // Mapping 'departmentId' as 'code'
+          name: item.departmentName, // Mapping 'departmentName' as 'name'
+        }));
+        setSubjectData(formattedData);
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu bộ môn:", error);
+      message.error("Không thể lấy dữ liệu bộ môn.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSearch = (e) => {
     setSearchText(e.target.value);
@@ -47,16 +57,70 @@ const ManageSubject = () => {
     setCurrentPage(page);
   };
 
-  const handleEdit = (record) => {
-    console.log("Chỉnh sửa môn:", record);
-    // Open modal to edit the subject
-    setIsModalOpen(true);
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setNewCode("");
+    setNewName("");
   };
 
-  const filteredData = data.filter(
+  const handleAddSubject = async () => {
+    if (!newCode.trim() || !newName.trim()) {
+      message.error("Vui lòng nhập đầy đủ thông tin.");
+      return;
+    }
+    try {
+      const res = await addSubject(newCode, newName);
+      if (res && res.status === 201) {
+        message.success("Thêm mới bộ môn thành công!");
+        handleModalClose();
+        fetchData(); // Cập nhật lại danh sách sau khi thêm mới
+      } else {
+        message.error("Đã xảy ra lỗi khi thêm mới bộ môn.");
+      }
+    } catch (error) {
+      console.error("Lỗi khi thêm bộ môn:", error);
+      message.error("Không thể thêm mới bộ môn.");
+    }
+  };
+
+  const handleEdit = (record) => {
+    setEditId(record.id); // Set the editId when editing a record
+    setEditCode(record.code); // Set the 'code' (departmentId) for editing
+    setEditName(record.name); // Set the 'name' (departmentName) for editing
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditModalClose = () => {
+    setIsEditModalOpen(false);
+    setEditId(""); // Reset the editId on modal close
+    setEditCode("");
+    setEditName("");
+  };
+
+  const handleUpdateSubject = async () => {
+    if (!editCode.trim() || !editName.trim()) {
+      message.error("Vui lòng nhập đầy đủ thông tin.");
+      return;
+    }
+    try {
+      const res = await updateSubject(editId, editCode, editName); // Pass the id when updating
+      if (res && res.status === 200) {
+        message.success("Cập nhật bộ môn thành công!");
+        handleEditModalClose();
+        fetchData(); // Cập nhật lại danh sách sau khi sửa
+      } else {
+        message.error("Đã xảy ra lỗi khi cập nhật bộ môn.");
+      }
+    } catch (error) {
+      console.error("Lỗi khi cập nhật bộ môn:", error);
+      message.error("Không thể cập nhật bộ môn.");
+    }
+  };
+
+  const filteredData = subjectData.filter(
     (item) =>
-      item.code.toLowerCase().includes(searchText.toLowerCase()) ||
-      item.name.toLowerCase().includes(searchText.toLowerCase())
+      item.code?.toLowerCase().includes(searchText.toLowerCase()) ||
+      item.name?.toLowerCase().includes(searchText.toLowerCase())
   );
 
   const startIndex = (currentPage - 1) * pageSize;
@@ -67,7 +131,6 @@ const ManageSubject = () => {
     { title: "MÃ BỘ MÔN", dataIndex: "code", key: "code" },
     { title: "TÊN BỘ MÔN", dataIndex: "name", key: "name" },
     {
-      // title: "HOẠT ĐỘNG",
       key: "action",
       render: (text, record) => (
         <div style={{ display: "flex", gap: "10px" }}>
@@ -83,10 +146,6 @@ const ManageSubject = () => {
       ),
     },
   ];
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-  };
 
   return (
     <>
@@ -121,11 +180,12 @@ const ManageSubject = () => {
               onChange: handlePageChange,
               total: filteredData.length,
             }}
+            loading={loading}
           />
         </div>
       </div>
 
-      {/* Modal for adding or editing a subject */}
+      {/* Modal for adding a new subject */}
       <Modal
         title="Thêm Mới Bộ Môn"
         open={isModalOpen}
@@ -133,15 +193,47 @@ const ManageSubject = () => {
         footer={null}
       >
         <div>
-          {/* Your form or inputs for adding/editing a subject */}
-          <Input placeholder="Mã bộ môn" style={{ marginBottom: 10 }} />
-          <Input placeholder="Tên bộ môn" />
+          <Input
+            placeholder="Mã bộ môn"
+            value={newCode}
+            onChange={(e) => setNewCode(e.target.value)}
+            style={{ marginBottom: 10 }}
+          />
+          <Input
+            placeholder="Tên bộ môn"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+          />
           <div style={{ marginTop: 20 }}>
-            <Button
-              type="primary"
-              onClick={() => console.log("Thêm mới bộ môn")}
-            >
+            <Button type="primary" onClick={handleAddSubject}>
               Thêm
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Modal for editing an existing subject */}
+      <Modal
+        title="Chỉnh Sửa Bộ Môn"
+        open={isEditModalOpen}
+        onCancel={handleEditModalClose}
+        footer={null}
+      >
+        <div>
+          <Input
+            placeholder="Mã bộ môn"
+            value={editCode}
+            onChange={(e) => setEditCode(e.target.value)}
+            style={{ marginBottom: 10 }}
+          />
+          <Input
+            placeholder="Tên bộ môn"
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+          />
+          <div style={{ marginTop: 20 }}>
+            <Button type="primary" onClick={handleUpdateSubject}>
+              Cập nhật
             </Button>
           </div>
         </div>

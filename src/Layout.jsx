@@ -12,6 +12,10 @@ import ManageKey from "./components/ManagePermission/ManageKey.jsx";
 import ManageGroupUsers from "./components/ManagePermission/ManageGroupUsers.jsx";
 import ManageSubject from "./components/ManagePermission/ManageSubject.jsx";
 import ManageIndustry from "./components/ManagePermission/ManageIndustry.jsx";
+import ProgramTraining from "./components/ProgramTraining/ProgramTraining.jsx";
+import SimilarCourse from "./components/SimilarCourse/SimilarCourse.jsx";
+import ManageCourse from "./components/ManagePermission/ManageCourse.jsx";
+import ManageEvent from "./components/ManagePermission/ManageEvent.jsx";
 
 const Layout = () => {
   return (
@@ -20,15 +24,19 @@ const Layout = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/" element={<App />}>
         <Route index element={<HomePage />} />
+        <Route path="training-program" element={<ProgramTraining />} />
         <Route path="request-approval" element={<RequestApproval />} />
+        <Route path="course-info" element={<SimilarCourse />} />
         <Route path="manage-specialize" element={<ManageSpecialized />} />
         <Route path="manage-key" element={<ManageKey />} />
         <Route path="manage-group-users" element={<ManageGroupUsers />} />
         <Route path="manage-subject" element={<ManageSubject />} />
-        <Route path="manage-industry" element={<ManageIndustry />} />
-        <Route path="change-password" element={<ChangePassword />} />
-        <Route path="manage-permission" element={<ManagePermission />} />
         <Route path="manage-users" element={<ManageUsers />} />
+        <Route path="manage-industry" element={<ManageIndustry />} />
+        <Route path="manage-course" element={<ManageCourse />} />
+        <Route path="manage-permission" element={<ManagePermission />} />
+        <Route path="manage-event" element={<ManageEvent />} />
+        <Route path="change-password" element={<ChangePassword />} />
       </Route>
     </Routes>
   );

@@ -1,23 +1,42 @@
-import { Table, Input, Button, Tooltip, Modal } from "antd";
+import { Table, Input, Button, Tooltip, Modal, notification } from "antd";
 import { EditOutlined, SearchOutlined } from "@ant-design/icons";
 import { IoAdd } from "react-icons/io5";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "../Header/Header";
 import "./ManageIndustry.scss";
+import { getMajor, addMajor, updateMajor } from "../../services/apiServices";
 
 const ManageIndustry = () => {
   const [searchText, setSearchText] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false); // Trạng thái có đang chỉnh sửa không
+  const [editingId, setEditingId] = useState(null); // Lưu id của ngành học đang chỉnh sửa
   const [currentPage, setCurrentPage] = useState(1);
+  const [data, setData] = useState([]);
+  const [newMajorId, setNewMajorId] = useState("");
+  const [newMajorName, setNewMajorName] = useState("");
   const pageSize = 5;
 
-  const data = [
-    { key: "1", code: "C01", name: "Công nghệ Thông tin" },
-    { key: "2", code: "C02", name: "Kinh tế" },
-    { key: "3", code: "C03", name: "Điện tử" },
-    { key: "4", code: "C04", name: "Cơ khí" },
-    { key: "5", code: "C05", name: "Y dược" },
-  ];
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const res = await getMajor();
+      if (res?.value) {
+        const formattedData = res.value.map((item, index) => ({
+          key: index + 1,
+          id: item.id, // Thêm id để phục vụ cho việc chỉnh sửa
+          code: item.majorId,
+          name: item.majorName,
+        }));
+        setData(formattedData);
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu ngành học:", error);
+    }
+  };
 
   const handleSearch = (e) => {
     setSearchText(e.target.value);
@@ -28,8 +47,66 @@ const ManageIndustry = () => {
   };
 
   const handleEdit = (record) => {
-    console.log("Chỉnh sửa ngành học:", record);
+    setNewMajorId(record.code);
+    setNewMajorName(record.name);
     setIsModalOpen(true);
+    setIsEditing(true);
+    setEditingId(record.id);
+  };
+
+  const handleAddMajor = async () => {
+    if (!newMajorId || !newMajorName) {
+      return openNotification("warning", "Vui lòng nhập đầy đủ thông tin!");
+    }
+
+    try {
+      const res = await addMajor(newMajorId, newMajorName);
+      if (res?.majorId) {
+        openNotification("success", "Thêm ngành học thành công!");
+        await fetchData();
+        handleModalClose();
+      } else {
+        openNotification("error", "Thêm ngành học thất bại!");
+      }
+    } catch (error) {
+      console.error("Lỗi khi thêm ngành học:", error);
+      openNotification("error", "Đã xảy ra lỗi, vui lòng thử lại!");
+    }
+  };
+
+  const handleUpdateMajor = async () => {
+    if (!newMajorId || !newMajorName) {
+      return openNotification("warning", "Vui lòng nhập đầy đủ thông tin!");
+    }
+
+    try {
+      const res = await updateMajor(editingId, newMajorId, newMajorName);
+      if (res?.majorId) {
+        openNotification("success", "Cập nhật ngành học thành công!");
+        await fetchData();
+        handleModalClose();
+      } else {
+        openNotification("error", "Cập nhật ngành học thất bại!");
+      }
+    } catch (error) {
+      console.error("Lỗi khi cập nhật ngành học:", error);
+      openNotification("error", "Đã xảy ra lỗi, vui lòng thử lại!");
+    }
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setNewMajorId("");
+    setNewMajorName("");
+    setIsEditing(false);
+    setEditingId(null);
+  };
+
+  const openNotification = (type, message) => {
+    notification[type]({
+      message: message,
+      placement: "topRight",
+    });
   };
 
   const filteredData = data.filter(
@@ -46,7 +123,6 @@ const ManageIndustry = () => {
     { title: "MÃ NGÀNH HỌC", dataIndex: "code", key: "code" },
     { title: "TÊN NGÀNH HỌC", dataIndex: "name", key: "name" },
     {
-      // title: "HOẠT ĐỘNG",
       key: "action",
       render: (text, record) => (
         <div style={{ display: "flex", gap: "10px" }}>
@@ -62,10 +138,6 @@ const ManageIndustry = () => {
       ),
     },
   ];
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-  };
 
   return (
     <>
@@ -106,21 +178,29 @@ const ManageIndustry = () => {
 
       {/* Modal for adding or editing an industry */}
       <Modal
-        title="Thêm Mới Ngành Học"
+        title={isEditing ? "Chỉnh Sửa Ngành Học" : "Thêm Mới Ngành Học"}
         open={isModalOpen}
         onCancel={handleModalClose}
         footer={null}
       >
         <div>
-          {/* Your form or inputs for adding/editing an industry */}
-          <Input placeholder="Mã ngành học" style={{ marginBottom: 10 }} />
-          <Input placeholder="Tên ngành học" />
+          <Input
+            placeholder="Mã ngành học"
+            value={newMajorId}
+            onChange={(e) => setNewMajorId(e.target.value)}
+            style={{ marginBottom: 10 }}
+          />
+          <Input
+            placeholder="Tên ngành học"
+            value={newMajorName}
+            onChange={(e) => setNewMajorName(e.target.value)}
+          />
           <div style={{ marginTop: 20 }}>
             <Button
               type="primary"
-              onClick={() => console.log("Thêm mới ngành học")}
+              onClick={isEditing ? handleUpdateMajor : handleAddMajor}
             >
-              Thêm
+              {isEditing ? "Lưu" : "Thêm"}
             </Button>
           </div>
         </div>

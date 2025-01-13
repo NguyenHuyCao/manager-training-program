@@ -1,8 +1,18 @@
-import { Input, Table, Tooltip, Modal, Form, Button, Select } from "antd";
+import {
+  Input,
+  Table,
+  Tooltip,
+  Modal,
+  Form,
+  Button,
+  message,
+  Select,
+} from "antd";
 import Header from "../Header/Header";
 import { SearchOutlined, EditOutlined } from "@ant-design/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IoAdd } from "react-icons/io5";
+import { getKeys, addKey, updateKey } from "../../services/apiServices"; // Import updateKey
 import "./ManageKey.scss";
 
 const { Option } = Select;
@@ -13,14 +23,29 @@ const ManageKey = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
   const [editingRecord, setEditingRecord] = useState(null);
+  const [data, setData] = useState([]);
 
-  const data = [
-    { key: "1", code: "K01", name: "Khoá 1", startYear: 2015, endYear: 2019 },
-    { key: "2", code: "K02", name: "Khoá 2", startYear: 2016, endYear: 2020 },
-    { key: "3", code: "K03", name: "Khoá 3", startYear: 2017, endYear: 2021 },
-    { key: "4", code: "K04", name: "Khoá 4", startYear: 2018, endYear: 2022 },
-    { key: "5", code: "K05", name: "Khoá 5", startYear: 2019, endYear: 2023 },
-  ];
+  const fetchData = async () => {
+    try {
+      const res = await getKeys();
+      if (res?.value) {
+        const formattedData = res.value.map((item) => ({
+          key: item.id,
+          code: item.schoolYearId, // schoolYearId là kiểu number
+          name: item.schoolYearName,
+          startYear: new Date(item.startYear).getFullYear(),
+          endYear: new Date(item.endYear).getFullYear(),
+        }));
+        setData(formattedData);
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu khóa:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const pageSize = 5;
 
@@ -48,20 +73,56 @@ const ManageKey = () => {
     setIsModalOpen(false);
   };
 
-  const handleSave = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        if (editingRecord) {
-          console.log("Cập nhật khoá:", { ...editingRecord, ...values });
+  const handleSave = async () => {
+    try {
+      const values = await form.validateFields();
+
+      // Define the function to format date
+      const formatDate = (year) => `${year}-01-01`;
+
+      const newKeyData = {
+        schoolYearId: Number(values.code.trim()), // Chuyển đổi sang kiểu number
+        schoolYearName: String(values.name.trim()),
+        startYear: formatDate(values.startYear),
+        endYear: formatDate(values.endYear),
+      };
+
+      console.log("newKeyData", newKeyData);
+      if (editingRecord) {
+        // If editing an existing record, call the update API
+        const response = await updateKey(
+          editingRecord.key, // Pass the ID of the record being updated
+          newKeyData.schoolYearId,
+          newKeyData.schoolYearName,
+          newKeyData.startYear,
+          newKeyData.endYear
+        );
+        if (response.id) {
+          message.success("Cập nhật khoá thành công!");
         } else {
-          console.log("Thêm mới khoá:", values);
+          message.error(`Cập nhật khoá thất bại: ${response?.message}`);
         }
-        setIsModalOpen(false);
-      })
-      .catch((info) => {
-        console.log("Lỗi khi lưu:", info);
-      });
+      } else {
+        // If adding a new record, call the add API
+        const response = await addKey(
+          newKeyData.schoolYearId,
+          newKeyData.schoolYearName,
+          newKeyData.startYear,
+          newKeyData.endYear
+        );
+        if (response.id) {
+          message.success("Thêm mới khoá thành công!");
+        } else {
+          message.error(`Thêm mới khoá thất bại: ${response?.message}`);
+        }
+      }
+
+      setIsModalOpen(false);
+      fetchData(); // Re-fetch the data after adding/updating
+    } catch (info) {
+      console.log("Lỗi khi lưu:", info);
+      message.error("Lỗi khi lưu thông tin!");
+    }
   };
 
   const filteredData = data.filter(

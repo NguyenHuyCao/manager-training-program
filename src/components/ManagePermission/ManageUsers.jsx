@@ -6,47 +6,48 @@ import {
 } from "@ant-design/icons";
 import { Input, Table, Select, Button, Popover, notification } from "antd";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { actionAddUser } from "../../store";
-import { useSelector } from "react-redux";
+import Header from "../Header/Header";
+import { getUsers } from "../../services/apiServices";
+import "./ManageUsers.scss";
 
 const ManageUsers = () => {
-  // Dữ liệu mẫu
-  const data = [
-    {
-      key: "1",
-      code: "PDT001",
-      username: "Nguyễn Thị Hải Yến",
-      usergroup: "Phòng đào tạo",
-      department: "Toán - Tin",
-      email: "yennht@edu.vn",
-    },
-    {
-      key: "2",
-      code: "PDT002",
-      username: "Trần Văn Nam",
-      usergroup: "Phòng hành chính",
-      department: "Hóa học",
-      email: "namtv@edu.vn",
-    },
-    // Add other rows as needed...
-  ];
-
-  const dispatch = useDispatch();
-  const isSuccessData = useSelector((state) => state.addUser.isSuccessData);
-
-  // State cho tìm kiếm và phân trang
+  const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilter, setIsFilter] = useState(false);
   const [isDot, setIsDot] = useState(false);
-  const pageSize = 5;
-
-  // Các bộ lọc
   const [userGroupFilter, setUserGroupFilter] = useState(null);
   const [departmentFilter, setDepartmentFilter] = useState(null);
+  const pageSize = 5;
+  const dispatch = useDispatch();
+  const isSuccessData = useSelector((state) => state.addUser.isSuccessData);
+  const [api, contextHolder] = notification.useNotification();
 
-  // Xử lý tìm kiếm
+  // Gọi API để lấy dữ liệu người dùng
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getUsers();
+        if (res && res.value) {
+          const transformedData = res.value.map((user, index) => ({
+            key: user.id,
+            code: user.userId,
+            username: `${user.firstName} ${user.lastName}`,
+            usergroup: user.role?.roleName || "N/A",
+            department: user.department || "N/A",
+            email: user.email,
+          }));
+          setData(transformedData);
+        }
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
   const filteredData = data
     .filter((item) => {
       const searchValue = searchText.toLowerCase();
@@ -64,11 +65,9 @@ const ManageUsers = () => {
       );
     });
 
-  // Tính toán dữ liệu hiển thị cho trang hiện tại
   const startIndex = (currentPage - 1) * pageSize;
   const currentPageData = filteredData.slice(startIndex, startIndex + pageSize);
 
-  // Cột của bảng
   const columns = [
     { title: "STT", dataIndex: "key", key: "key" },
     { title: "Mã", dataIndex: "code", key: "code" },
@@ -78,7 +77,6 @@ const ManageUsers = () => {
     { title: "Email", dataIndex: "email", key: "email" },
   ];
 
-  // Xử lý thay đổi trang
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
@@ -88,7 +86,6 @@ const ManageUsers = () => {
     setIsDot(true);
   };
 
-  // Hàm xử lý khi nhấn nút hủy
   const handleReset = () => {
     setUserGroupFilter(null);
     setDepartmentFilter(null);
@@ -96,7 +93,6 @@ const ManageUsers = () => {
     setIsDot(false);
   };
 
-  // Popover content cho bộ lọc
   const filterContent = (
     <div className="filter-dropdown">
       <div className="filter-title">Bộ lọc</div>
@@ -107,12 +103,8 @@ const ManageUsers = () => {
           value={userGroupFilter}
           onChange={setUserGroupFilter}
         >
-          <Select.Option value="Phòng đào tạo">Phòng đào tạo</Select.Option>
-          <Select.Option value="Phòng hành chính">
-            Phòng hành chính
-          </Select.Option>
-          <Select.Option value="Phòng kế toán">Phòng kế toán</Select.Option>
-          <Select.Option value="Phòng nhân sự">Phòng nhân sự</Select.Option>
+          <Select.Option value="Admin">Admin</Select.Option>
+          <Select.Option value="Lecturer">Lecturer</Select.Option>
         </Select>
       </div>
       <div className="filter-item">
@@ -124,8 +116,6 @@ const ManageUsers = () => {
         >
           <Select.Option value="Toán - Tin">Toán - Tin</Select.Option>
           <Select.Option value="Hóa học">Hóa học</Select.Option>
-          <Select.Option value="Vật lý">Vật lý</Select.Option>
-          <Select.Option value="Sinh học">Sinh học</Select.Option>
         </Select>
       </div>
       <div className="filter-actions">
@@ -137,8 +127,6 @@ const ManageUsers = () => {
     </div>
   );
 
-  const [api, contextHolder] = notification.useNotification();
-
   const openNotification = () => {
     if (isSuccessData) {
       api.success({
@@ -148,6 +136,7 @@ const ManageUsers = () => {
       });
     }
   };
+
   useEffect(() => {
     openNotification();
   }, [isSuccessData]);
@@ -158,60 +147,60 @@ const ManageUsers = () => {
   };
 
   return (
-    <div className="manage-users">
-      {contextHolder}
+    <>
+      <Header title={"QUẢN LÝ NGƯỜI DÙNG"} />
+      <div className="manage-users">
+        {contextHolder}
 
-      <div className="header-home-page">Quản lý Người dùng</div>
+        <div className="btn-add">
+          <div className="search-username">
+            <Input
+              prefix={<SearchOutlined />}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              placeholder="Tên người dùng"
+              size={"large"}
+            />
+          </div>
+          <div className="actions">
+            <Popover
+              content={filterContent}
+              trigger="click"
+              open={isFilter}
+              placement="bottomRight"
+            >
+              <button
+                className={`filter-button ${
+                  userGroupFilter || departmentFilter ? "active" : ""
+                }`}
+                onClick={() => setIsFilter(!isFilter)}
+              >
+                <FilterOutlined />
+                {isDot && <div className="dot-red"></div>}
+              </button>
+            </Popover>
+            <button className="btn" onClick={handleAddUser}>
+              <AppstoreAddOutlined /> <span>Thêm mới</span>
+            </button>
+          </div>
+        </div>
 
-      {/* Thanh công cụ tìm kiếm và thêm mới */}
-      <div className="btn-add">
-        <div className="search-username">
-          <Input
-            prefix={<SearchOutlined />}
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            placeholder="Tên người dùng"
-            size={"large"}
+        <div>
+          <Table
+            columns={columns}
+            dataSource={currentPageData}
+            pagination={{
+              position: ["bottomCenter"],
+              pageSize: pageSize,
+              current: currentPage,
+              onChange: handlePageChange,
+              total: filteredData.length,
+            }}
+            locale={{ emptyText: "Không có dữ liệu" }}
           />
         </div>
-        <div className="actions">
-          <Popover
-            content={filterContent}
-            trigger="click"
-            open={isFilter}
-            placement="bottomRight"
-          >
-            <button
-              className={`filter-button ${
-                userGroupFilter || departmentFilter ? "active" : ""
-              }`}
-              onClick={() => setIsFilter(!isFilter)}
-            >
-              <FilterOutlined />
-              {isDot && <div className="dot-red"></div>}
-            </button>
-          </Popover>
-          <button className="btn" onClick={handleAddUser}>
-            <AppstoreAddOutlined /> <span>Thêm mới</span>
-          </button>
-        </div>
       </div>
-
-      <div>
-        <Table
-          columns={columns}
-          dataSource={currentPageData}
-          pagination={{
-            position: ["bottomCenter"],
-            pageSize: pageSize,
-            current: currentPage,
-            onChange: handlePageChange,
-            total: filteredData.length,
-          }}
-          locale={{ emptyText: "Không có dữ liệu" }}
-        />
-      </div>
-    </div>
+    </>
   );
 };
 

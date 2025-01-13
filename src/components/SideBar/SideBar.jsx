@@ -9,33 +9,49 @@ import { FiBook } from "react-icons/fi";
 import { TbUserExclamation } from "react-icons/tb";
 import { IoCalendarOutline } from "react-icons/io5";
 import { RiCalendar2Line } from "react-icons/ri";
-import { useLocation } from "react-router-dom";
-
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getUserCurrent } from "../../services/apiServices";
 import "./SideBar.scss";
 import logo from "../../assets/logo.jfif";
 
-import { useNavigate } from "react-router";
-
 const SideBar = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // Lấy đường dẫn hiện tại
-  console.log(location);
+  const location = useLocation();
+  const [userInfo, setUserInfo] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getUserCurrent();
+        if (res?.id) {
+          setUserInfo(res);
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <div className="container-sidebar">
       <div className="logo-page">
-        <img src={logo} />
+        <img src={logo} alt="Logo" />
       </div>
-      {/* <hr /> */}
 
       <div className="info-user">
-        <div className="icon-user">
-          <FaUser />
-        </div>
+        <FaUser className="icon-user" />
         <div className="info">
-          <h3 className="name">Nguyễn Minh Hiếu</h3>
-          <p className="msv">A41239</p>
-          <p className="role">Admin</p>
+          {userInfo ? (
+            <>
+              <h3 className="name">{`${userInfo.firstName} ${userInfo.lastName}`}</h3>
+              <p className="msv">{userInfo.userId}</p>
+              <p className="role">{userInfo.role.roleName}</p>
+            </>
+          ) : (
+            <p>Đang tải thông tin...</p>
+          )}
         </div>
       </div>
       <hr />
@@ -43,7 +59,12 @@ const SideBar = () => {
       <div className="manager-training-program">
         <div className="title">TRANG CÁ NHÂN</div>
         <div className="manager">
-          <div className="manager-children">
+          <div
+            className={`manager-children ${
+              location.pathname === "/" ? "active" : ""
+            }`}
+            onClick={() => navigate("/")}
+          >
             <FaUser className="icon" />
             <p>Thông tin cá nhân</p>
           </div>
@@ -51,104 +72,146 @@ const SideBar = () => {
       </div>
 
       <div className="manager-training-program">
-        <div
-          className={`manager-children ${
-            location.pathname === "/personal-info" ? "active" : ""
-          }`}
-        >
-          TRA CỨU THÔNG TIN
-        </div>
+        <div className="title">TRA CỨU THÔNG TIN</div>
         <div className="manager">
-          <div
-            className={`manager-children ${
-              location.pathname === "/training-program" ? "active" : ""
-            }`}
-            onClick={() => navigate("/training-program")}
-          >
-            <PiListBulletsFill className="icon" />
-            <p>Trương trình đào tạo</p>
-          </div>
-          <div
-            className={`manager-children ${
-              location.pathname === "/course-info" ? "active" : ""
-            }`}
-            onClick={() => navigate("/course-info")}
-          >
-            <MdOutlineBalance className="icon" />
-            <p>Học phần tương ứng</p>
-          </div>
-          <div
-            className={`manager-children ${
-              location.pathname === "/request-approval" ? "active" : ""
-            }`}
-            onClick={() => navigate("/request-approval")}
-          >
-            <BsFillPatchCheckFill className="icon" />
-            <p>Yêu cầu duyệt</p>
-          </div>
+          {userInfo?.role?.informationLookupRule?.viewProgram && (
+            <div
+              className={`manager-children ${
+                location.pathname === "/training-program" ? "active" : ""
+              }`}
+              onClick={() => navigate("/training-program")}
+            >
+              <PiListBulletsFill className="icon" />
+              <p>Chương trình đào tạo</p>
+            </div>
+          )}
+          {userInfo?.role?.informationLookupRule?.viewEquivalentSubject && (
+            <div
+              className={`manager-children ${
+                location.pathname === "/course-info" ? "active" : ""
+              }`}
+              onClick={() => navigate("/course-info")}
+            >
+              <MdOutlineBalance className="icon" />
+              <p>Học phần tương ứng</p>
+            </div>
+          )}
+          {userInfo?.role?.informationLookupRule?.sendApprovalRequest && (
+            <div
+              className={`manager-children ${
+                location.pathname === "/request-approval" ? "active" : ""
+              }`}
+              onClick={() => navigate("/request-approval")}
+            >
+              <BsFillPatchCheckFill className="icon" />
+              <p>Yêu cầu duyệt</p>
+            </div>
+          )}
         </div>
       </div>
 
       <div className="administration">
-        <div className="title">Quản trị</div>
+        <div className="title">QUẢN TRỊ</div>
         <div className="manager">
-          <div
-            onClick={() => navigate("/manage-specialize")}
-            className="manager-children"
-          >
-            <MdOutlineClass />
-            <p>Quản lý Lớp chuyên ngành</p>
-          </div>
-          <div
-            onClick={() => navigate("/manage-key")}
-            className="manager-children"
-          >
-            <RiCalendar2Line />
-            <p>Quản lý Khoa</p>
-          </div>
-          <div
-            onClick={() => navigate("/manage-group-users")}
-            className="manager-children"
-          >
-            <TiGroupOutline />
-            <p>Quản lý Nhóm người dùng</p>
-          </div>
-          <div
-            onClick={() => navigate("/manage-subject")}
-            className="manager-children"
-          >
-            <PiTreeView />
-            <p>Quản lý Bộ môn</p>
-          </div>
-          <div
-            onClick={() => navigate("/manage-industry")}
-            className="manager-children"
-          >
-            <FiBook />
-            <p>Quản lý Ngành học</p>
-          </div>
-          <div
-            onClick={() => navigate("/manage-users")}
-            className="manager-children"
-          >
-            <TbUserExclamation />
-            <p>Quản lý Người dùng</p>
-          </div>
-          <div onClick={() => navigate()} className="manager-children">
-            <BsListColumns />
-            <p>Quản lý Học phần</p>
-          </div>
-          <div
-            onClick={() => navigate("/manage-permission")}
-            className="manager-children"
-          >
-            <MdOutlineCellWifi />
-            <p>Quản lý Phân quyền</p>
-          </div>
-          <div onClick={() => navigate()} className="manager-children">
-            <IoCalendarOutline />
-            <p>Quản lý Thời gian</p>
-          </div>
+          {userInfo?.role?.administrationRule?.viewClass && (
+            <div
+              className={`manager-children ${
+                location.pathname === "/manage-specialize" ? "active" : ""
+              }`}
+              onClick={() => navigate("/manage-specialize")}
+            >
+              <MdOutlineClass />
+              <p>Quản lý Lớp chuyên ngành</p>
+            </div>
+          )}
+          {userInfo?.role?.administrationRule?.viewSchoolYear && (
+            <div
+              className={`manager-children ${
+                location.pathname === "/manage-key" ? "active" : ""
+              }`}
+              onClick={() => navigate("/manage-key")}
+            >
+              <RiCalendar2Line />
+              <p>Quản lý Khoá</p>
+            </div>
+          )}
+          {userInfo?.role?.administrationRule?.viewUserGroup && (
+            <div
+              className={`manager-children ${
+                location.pathname === "/manage-group-users" ? "active" : ""
+              }`}
+              onClick={() => navigate("/manage-group-users")}
+            >
+              <TiGroupOutline />
+              <p>Quản lý Nhóm người dùng</p>
+            </div>
+          )}
+          {userInfo?.role?.administrationRule?.viewDepartment && (
+            <div
+              className={`manager-children ${
+                location.pathname === "/manage-subject" ? "active" : ""
+              }`}
+              onClick={() => navigate("/manage-subject")}
+            >
+              <PiTreeView />
+              <p>Quản lý Bộ môn</p>
+            </div>
+          )}
+          {userInfo?.role?.administrationRule?.viewMajor && (
+            <div
+              className={`manager-children ${
+                location.pathname === "/manage-industry" ? "active" : ""
+              }`}
+              onClick={() => navigate("/manage-industry")}
+            >
+              <FiBook />
+              <p>Quản lý Ngành học</p>
+            </div>
+          )}
+          {userInfo?.role?.administrationRule?.viewUser && (
+            <div
+              className={`manager-children ${
+                location.pathname === "/manage-users" ? "active" : ""
+              }`}
+              onClick={() => navigate("/manage-users")}
+            >
+              <TbUserExclamation />
+              <p>Quản lý Người dùng</p>
+            </div>
+          )}
+          {userInfo?.role?.administrationRule?.viewSubject && (
+            <div
+              className={`manager-children ${
+                location.pathname === "/manage-course" ? "active" : ""
+              }`}
+              onClick={() => navigate("/manage-course")}
+            >
+              <BsListColumns />
+              <p>Quản lý Học phần</p>
+            </div>
+          )}
+          {userInfo?.role?.administrationRule?.assignPermission && (
+            <div
+              className={`manager-children ${
+                location.pathname === "/manage-permission" ? "active" : ""
+              }`}
+              onClick={() => navigate("/manage-permission")}
+            >
+              <MdOutlineCellWifi />
+              <p>Quản lý Phân quyền</p>
+            </div>
+          )}
+          {userInfo?.role?.administrationRule?.manageEvent && (
+            <div
+              className={`manager-children ${
+                location.pathname === "/manage-event" ? "active" : ""
+              }`}
+              onClick={() => navigate("/manage-event")}
+            >
+              <IoCalendarOutline />
+              <p>Quản lý Sự kiện</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
