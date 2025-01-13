@@ -9,7 +9,11 @@ import {
   Select,
 } from "antd";
 import Header from "../Header/Header";
-import { SearchOutlined, EditOutlined } from "@ant-design/icons";
+import {
+  SearchOutlined,
+  EditOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { IoAdd } from "react-icons/io5";
 import { getKeys, addKey, updateKey } from "../../services/apiServices"; // Import updateKey
@@ -77,21 +81,22 @@ const ManageKey = () => {
     try {
       const values = await form.validateFields();
 
-      // Define the function to format date
-      const formatDate = (year) => `${year}-01-01`;
+      // Chuyển đổi `startYear` và `endYear` từ `number` sang `Date`
+      const formatDate = (year) => new Date(`${year}-01-01`);
 
       const newKeyData = {
-        schoolYearId: Number(values.code.trim()), // Chuyển đổi sang kiểu number
-        schoolYearName: String(values.name.trim()),
-        startYear: formatDate(values.startYear),
-        endYear: formatDate(values.endYear),
+        schoolYearId: String(values.code.trim()), // Đảm bảo là kiểu string
+        schoolYearName: String(values.name.trim()), // Đảm bảo là kiểu string
+        startYear: formatDate(values.startYear), // Chuyển đổi sang Date
+        endYear: formatDate(values.endYear), // Chuyển đổi sang Date
       };
 
       console.log("newKeyData", newKeyData);
+
       if (editingRecord) {
-        // If editing an existing record, call the update API
+        // Cập nhật khóa
         const response = await updateKey(
-          editingRecord.key, // Pass the ID of the record being updated
+          editingRecord.key, // ID của bản ghi đang chỉnh sửa
           newKeyData.schoolYearId,
           newKeyData.schoolYearName,
           newKeyData.startYear,
@@ -103,7 +108,7 @@ const ManageKey = () => {
           message.error(`Cập nhật khoá thất bại: ${response?.message}`);
         }
       } else {
-        // If adding a new record, call the add API
+        // Thêm mới khóa
         const response = await addKey(
           newKeyData.schoolYearId,
           newKeyData.schoolYearName,
@@ -118,10 +123,42 @@ const ManageKey = () => {
       }
 
       setIsModalOpen(false);
-      fetchData(); // Re-fetch the data after adding/updating
+      fetchData(); // Tải lại dữ liệu
     } catch (info) {
       console.log("Lỗi khi lưu:", info);
       message.error("Lỗi khi lưu thông tin!");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const token = localStorage.getItem("access_token");
+
+      if (!token) {
+        message.error("Chưa có token, không thể xoá!");
+        return;
+      }
+
+      const response = await fetch(
+        `https://qlctt.kain.id.vn/school-year/delete/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // const data = await response.json();
+      if (response && response.status) {
+        message.success("Xoá khoá thành công!");
+        fetchData(); // Tải lại dữ liệu sau khi xoá thành công
+      } else {
+        message.error(`Xoá khoá thất bại: ${data?.message}`);
+      }
+    } catch (error) {
+      console.error("Lỗi khi xoá khoá:", error);
+      message.error("Lỗi khi xoá khoá!");
     }
   };
 
@@ -143,12 +180,20 @@ const ManageKey = () => {
     {
       key: "action",
       render: (text, record) => (
-        <Tooltip title="Chỉnh sửa">
-          <EditOutlined
-            style={{ color: "#1890ff", cursor: "pointer" }}
-            onClick={() => handleEdit(record)}
-          />
-        </Tooltip>
+        <>
+          <Tooltip title="Chỉnh sửa">
+            <EditOutlined
+              style={{ color: "#1890ff", cursor: "pointer" }}
+              onClick={() => handleEdit(record)}
+            />
+          </Tooltip>
+          <Tooltip title="Xoá">
+            <DeleteOutlined
+              style={{ color: "#ff4d4f", cursor: "pointer", marginLeft: 10 }}
+              onClick={() => handleDelete(record.key)}
+            />
+          </Tooltip>
+        </>
       ),
     },
   ];

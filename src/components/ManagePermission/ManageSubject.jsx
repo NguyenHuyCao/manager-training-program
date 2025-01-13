@@ -1,5 +1,9 @@
 import { Table, Input, Button, Tooltip, Modal, message } from "antd";
-import { EditOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  SearchOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 import { IoAdd } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import Header from "../Header/Header";
@@ -22,6 +26,8 @@ const ManageSubject = () => {
   const [editId, setEditId] = useState(""); // Added editId for handling subject id in edit
   const [editCode, setEditCode] = useState("");
   const [editName, setEditName] = useState("");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState(null); // To store id of the subject to delete
   const pageSize = 5;
 
   useEffect(() => {
@@ -70,7 +76,7 @@ const ManageSubject = () => {
     }
     try {
       const res = await addSubject(newCode, newName);
-      if (res && res.status === 201) {
+      if (res && res.id) {
         message.success("Thêm mới bộ môn thành công!");
         handleModalClose();
         fetchData(); // Cập nhật lại danh sách sau khi thêm mới
@@ -104,17 +110,55 @@ const ManageSubject = () => {
     }
     try {
       const res = await updateSubject(editId, editCode, editName); // Pass the id when updating
-      if (res && res.status === 200) {
+      if (res && res.id) {
         message.success("Cập nhật bộ môn thành công!");
+        setIsModalOpen(false);
+        fetchData(); // Tải lại danh sách sau khi cập nhật
         handleEditModalClose();
-        fetchData(); // Cập nhật lại danh sách sau khi sửa
       } else {
         message.error("Đã xảy ra lỗi khi cập nhật bộ môn.");
       }
     } catch (error) {
-      console.error("Lỗi khi cập nhật bộ môn:", error);
       message.error("Không thể cập nhật bộ môn.");
     }
+  };
+
+  const handleDelete = async (id) => {
+    setDeleteId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      const response = await fetch(
+        `https://qlctt.kain.id.vn/department/delete/${deleteId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            // Add your token here if needed
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+        }
+      );
+      console.log("response", response);
+
+      if (response.ok) {
+        message.success("Xóa bộ môn thành công!");
+        fetchData(); // Reload data after deletion
+        setIsDeleteModalOpen(false); // Close the modal
+      } else {
+        message.error("Xóa bộ môn không thành công.");
+      }
+    } catch (error) {
+      console.error("Lỗi khi xóa bộ môn:", error);
+      message.error("Không thể xóa bộ môn.");
+    }
+  };
+
+  const handleDeleteModalClose = () => {
+    setIsDeleteModalOpen(false);
+    setDeleteId(null); // Reset deleteId
   };
 
   const filteredData = subjectData.filter(
@@ -140,6 +184,14 @@ const ManageSubject = () => {
               shape="circle"
               icon={<EditOutlined />}
               onClick={() => handleEdit(record)}
+            />
+          </Tooltip>
+          <Tooltip title="Xóa">
+            <Button
+              type="danger"
+              shape="circle"
+              icon={<DeleteOutlined />}
+              onClick={() => handleDelete(record.id)}
             />
           </Tooltip>
         </div>
@@ -237,6 +289,18 @@ const ManageSubject = () => {
             </Button>
           </div>
         </div>
+      </Modal>
+
+      {/* Modal for delete confirmation */}
+      <Modal
+        title="Xác Nhận Xóa"
+        visible={isDeleteModalOpen}
+        onOk={confirmDelete}
+        onCancel={handleDeleteModalClose}
+        okText="Xóa"
+        cancelText="Hủy"
+      >
+        <p>Bạn có chắc chắn muốn xóa bộ môn này không?</p>
       </Modal>
     </>
   );

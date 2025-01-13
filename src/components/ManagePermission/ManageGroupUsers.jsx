@@ -13,10 +13,12 @@ import { getGroupUsers } from "../../services/apiServices";
 const ManageGroupUsers = () => {
   const [searchText, setSearchText] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Modal Edit
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false); // Modal Add
   const [form] = Form.useForm();
   const [data, setData] = useState([]); // Hold the fetched group data
   const pageSize = 5;
+  const [editingRecord, setEditingRecord] = useState(null); // Track the record being edited
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,8 +39,13 @@ const ManageGroupUsers = () => {
   };
 
   const handleEdit = (record) => {
-    console.log("Chỉnh sửa nhóm:", record);
-    setIsModalOpen(true);
+    setEditingRecord(record); // Set the record to be edited
+    form.setFieldsValue({
+      roleId: record.roleId,
+      roleName: record.roleName,
+      description: record.description,
+    });
+    setIsEditModalOpen(true); // Open the edit modal
   };
 
   const handleDelete = (record) => {
@@ -48,21 +55,144 @@ const ManageGroupUsers = () => {
       okText: "Xoá",
       cancelText: "Hủy",
       onOk: async () => {
-        // await deleteGroupUser(record.code);
-        setData((prevData) => prevData.filter((item) => item.id !== record.id)); // Remove deleted record from state
+        try {
+          const token = localStorage.getItem("access_token");
+          const response = await fetch(
+            `https://qlctt.kain.id.vn/role/delete/${record.id}`,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          const res = await response.json();
+          if (res && res.status) {
+            // Remove the deleted record from state
+            setData((prevData) =>
+              prevData.filter((item) => item.id !== record.id)
+            );
+            Modal.success({
+              title: "Xoá thành công",
+              content: `Nhóm "${record.roleName}" đã được xoá.`,
+            });
+          } else {
+            // Modal.error({
+            //   title: "Xoá thất bại",
+            //   content: "Vui lòng thử lại sau.",
+            // });
+          }
+        } catch (error) {
+          console.error("Lỗi khi xoá nhóm người dùng:", error);
+          Modal.error({
+            title: "Lỗi",
+            content: "Đã xảy ra lỗi trong quá trình xoá.",
+          });
+        }
       },
     });
   };
 
   const handleAddNew = () => {
     form.validateFields().then(async (values) => {
-      console.log("Thông tin nhóm mới:", values);
-      // const res = await addGroupUser(values); // API request to add a new group
-      // if (res && res.data) {
-      //   setData((prevData) => [...prevData, res.data]); // Add new group to the data
-      //   setIsModalOpen(false);
-      //   form.resetFields();
-      // }
+      const { roleId, roleName, description } = values;
+      try {
+        const token = localStorage.getItem("access_token");
+        const response = await fetch("https://qlctt.kain.id.vn/role/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            roleId,
+            roleName,
+            description,
+          }),
+        });
+
+        const res = await response.json();
+        if (res && res.id) {
+          // Add new item based on the response from the API
+          const newItem = {
+            key: res.id,
+            roleId: res.roleId,
+            roleName: res.roleName,
+            description: res.description,
+          };
+          setData((prevData) => [...prevData, newItem]);
+          setIsAddModalOpen(false); // Close the modal
+          form.resetFields(); // Reset form fields
+        } else {
+          Modal.error({
+            title: "Thêm nhóm thất bại",
+            content: "Vui lòng thử lại sau.",
+          });
+        }
+      } catch (error) {
+        console.error("Lỗi khi thêm mới nhóm người dùng:", error);
+        Modal.error({
+          title: "Lỗi",
+          content: "Đã xảy ra lỗi trong quá trình thêm mới.",
+        });
+      }
+    });
+  };
+
+  const handleEditSave = async () => {
+    form.validateFields().then(async (values) => {
+      const { roleId, roleName, description } = values;
+      const recordToUpdate = {
+        roleId,
+        roleName,
+        description,
+      };
+
+      try {
+        const token = localStorage.getItem("access_token");
+        const id = editingRecord.id; // Get the ID from the selected record
+        const response = await fetch(
+          `https://qlctt.kain.id.vn/role/update/${id}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(recordToUpdate),
+          }
+        );
+
+        const res = await response.json();
+        if (res && res.id) {
+          const updatedItem = {
+            key: res.id,
+            roleId: res.roleId,
+            roleName: res.roleName,
+            description: res.description,
+          };
+
+          // Update the data with the edited record
+          setData((prevData) =>
+            prevData.map((item) => (item.id === res.id ? updatedItem : item))
+          );
+          setIsEditModalOpen(false); // Close the modal
+          form.resetFields(); // Reset form fields
+        } else {
+          Modal.error({
+            title: "Cập nhật nhóm thất bại",
+            content: "Vui lòng thử lại sau.",
+          });
+        }
+      } catch (error) {
+        console.error("Lỗi khi cập nhật nhóm người dùng:", error);
+        Modal.error({
+          title: "Lỗi",
+          content: "Đã xảy ra lỗi trong quá trình cập nhật.",
+        });
+      }
     });
   };
 
@@ -123,7 +253,7 @@ const ManageGroupUsers = () => {
                 style={{ border: "rgb(145, 7, 7) solid 1px" }}
               />
             </div>
-            <button className="btn" onClick={() => setIsModalOpen(true)}>
+            <button className="btn" onClick={() => setIsAddModalOpen(true)}>
               <IoAdd /> <span>Thêm mới</span>
             </button>
           </div>
@@ -143,13 +273,43 @@ const ManageGroupUsers = () => {
         </div>
       </div>
 
+      {/* Modal Chỉnh sửa */}
+      <Modal
+        title="Chỉnh Sửa Nhóm Người Dùng"
+        open={isEditModalOpen}
+        onCancel={() => setIsEditModalOpen(false)}
+        onOk={handleEditSave}
+        okText="Cập nhật"
+        cancelText="Hủy"
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            label="Mã Nhóm Người Dùng"
+            name="roleId"
+            rules={[{ required: true, message: "Vui lòng nhập mã nhóm" }]}
+          >
+            <Input disabled placeholder="Nhập mã nhóm người dùng" />
+          </Form.Item>
+          <Form.Item
+            label="Tên Nhóm Người Dùng"
+            name="roleName"
+            rules={[{ required: true, message: "Vui lòng nhập tên nhóm" }]}
+          >
+            <Input placeholder="Nhập tên nhóm người dùng" />
+          </Form.Item>
+          <Form.Item label="Mô Tả" name="description">
+            <Input.TextArea rows={4} placeholder="Nhập mô tả" />
+          </Form.Item>
+        </Form>
+      </Modal>
+
       {/* Modal Thêm mới */}
       <Modal
-        title="Thêm Nhóm Người Dùng"
-        open={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
+        title="Thêm Mới Nhóm Người Dùng"
+        open={isAddModalOpen}
+        onCancel={() => setIsAddModalOpen(false)}
         onOk={handleAddNew}
-        okText="Lưu"
+        okText="Thêm mới"
         cancelText="Hủy"
       >
         <Form form={form} layout="vertical">

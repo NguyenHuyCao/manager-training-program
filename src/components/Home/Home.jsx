@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Header from "../Header/Header";
 import "./Home.scss";
 import { getUserCurrent } from "../../services/apiServices";
+import { FaUser } from "react-icons/fa";
 
 const HomePage = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -27,7 +28,9 @@ const HomePage = () => {
         {userInfo ? (
           <>
             <div className="info-left">
-              <div className="icon-user"></div>
+              <div className="icon-user">
+                <FaUser className="icon-user" />
+              </div>
               <h2>{`${userInfo.firstName} ${userInfo.lastName}`}</h2>
             </div>
             <div className="info-right">

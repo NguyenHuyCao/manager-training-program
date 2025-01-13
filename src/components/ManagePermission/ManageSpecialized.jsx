@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Input, Table, Tooltip, Modal, Form, Input as AntdInput } from "antd";
-import { SearchOutlined, EditOutlined } from "@ant-design/icons";
+import {
+  SearchOutlined,
+  EditOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 import { IoAdd } from "react-icons/io5";
 import Header from "../Header/Header";
 import { actionAddUnit } from "../../store";
 import "./ManageSpecialized.scss";
 import { getClass, updataClass } from "../../services/apiServices"; // Import the necessary functions
+import ModalAddUnit from "../Modal/ModalAddClass";
 
 const ManageSpecialized = () => {
   const [loading, setLoading] = useState(false);
@@ -17,22 +22,22 @@ const ManageSpecialized = () => {
   const [editingClass, setEditingClass] = useState(null); // State to store the class being edited
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const fetchClassData = async () => {
-      setLoading(true);
-      try {
-        const res = await getClass(); // Fetch class data
-        console.log("Class data response:", res);
-        if (res && res.value) {
-          setClassData(res.value); // Update state with the 'value' array from the response
-        }
-      } catch (error) {
-        console.error("Error fetching class data:", error);
-      } finally {
-        setLoading(false);
+  const fetchClassData = async () => {
+    setLoading(true);
+    try {
+      const res = await getClass(); // Fetch class data
+      console.log("Class data response:", res);
+      if (res && res.value) {
+        setClassData(res.value); // Update state with the 'value' array from the response
       }
-    };
+    } catch (error) {
+      console.error("Error fetching class data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchClassData();
   }, [dispatch]);
 
@@ -50,16 +55,18 @@ const ManageSpecialized = () => {
   };
 
   const handleModalOk = async () => {
-    // Logic to save the edited class
-    console.log("Edited class data:", editingClass);
-    const res = await updataClass(
-      editingClass.id,
-      editingClass.classId,
-      editingClass.className
-    );
-
-    console.log("res", res);
-    setIsModalVisible(false);
+    try {
+      const res = await updataClass(
+        editingClass.id,
+        editingClass.classId,
+        editingClass.className
+      );
+      console.log("res", res);
+      setIsModalVisible(false);
+      await fetchClassData(); // Gọi lại dữ liệu mới từ server sau khi cập nhật thành công
+    } catch (error) {
+      console.error("Error updating class:", error);
+    }
   };
 
   const handleModalCancel = () => {
@@ -70,6 +77,39 @@ const ManageSpecialized = () => {
     setEditingClass({
       ...editingClass,
       [e.target.name]: e.target.value,
+    });
+  };
+
+  // Handle delete action
+  const handleDelete = (id) => {
+    Modal.confirm({
+      title: "Bạn có chắc chắn muốn xoá lớp này?",
+      content: "Hành động này không thể hoàn tác!",
+      onOk: async () => {
+        try {
+          const token = localStorage.getItem("access_token"); // Lấy token từ localStorage
+          const res = await fetch(
+            `https://qlctt.kain.id.vn/class/delete/${id}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${token}`, // Gửi token trong header
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          if (res.ok) {
+            const data = await res.json();
+            console.log("Lớp đã được xoá:", data);
+            fetchClassData(); // Tải lại dữ liệu sau khi xoá thành công
+          } else {
+            console.error("Lỗi khi xoá lớp");
+          }
+        } catch (error) {
+          console.error("Error deleting class:", error);
+        }
+      },
     });
   };
 
@@ -96,12 +136,20 @@ const ManageSpecialized = () => {
       title: "Hành động",
       key: "action",
       render: (text, record) => (
-        <Tooltip title="Chỉnh sửa">
-          <EditOutlined
-            style={{ color: "#1890ff", cursor: "pointer" }}
-            onClick={() => handleEdit(record)}
-          />
-        </Tooltip>
+        <div>
+          <Tooltip title="Chỉnh sửa">
+            <EditOutlined
+              style={{ color: "#1890ff", cursor: "pointer", marginRight: 10 }}
+              onClick={() => handleEdit(record)}
+            />
+          </Tooltip>
+          <Tooltip title="Xoá">
+            <DeleteOutlined
+              style={{ color: "#ff4d4f", cursor: "pointer" }}
+              onClick={() => handleDelete(record.id)} // Gọi hàm handleDelete
+            />
+          </Tooltip>
+        </div>
       ),
     },
   ];
@@ -146,6 +194,8 @@ const ManageSpecialized = () => {
           />
         </div>
       </div>
+
+      <ModalAddUnit onSuccess={fetchClassData} />
 
       {/* Modal for editing class */}
       <Modal

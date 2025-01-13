@@ -12,6 +12,7 @@ const ManageEvent = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [courses, setCourses] = useState([]); // State mới để lưu danh sách các khóa học
+  const [successMessage, setSuccessMessage] = useState(""); // Thêm state để lưu thông báo thành công
 
   const fetchData = async () => {
     try {
@@ -25,6 +26,7 @@ const ManageEvent = () => {
       }
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu khóa:", error);
+      setError("Lỗi khi tải danh sách khóa học.");
     }
   };
 
@@ -34,20 +36,25 @@ const ManageEvent = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await getEvent();
-      if (res.statusCode === 401) {
-        setError("Unauthorized access. Please log in again.");
-      } else {
-        const formattedEvents = res.value.map((event) => ({
-          key: event.id,
-          eventName: event.eventType,
-          startDate: event.startTime,
-          endDate: event.endTime,
-          status: event.eventStatus ? "Active" : "Inactive",
-          course: event.schoolYear,
-          eventType: event.eventType,
-        }));
-        setEvents(formattedEvents);
+      try {
+        const res = await getEvent();
+        if (res.statusCode === 401) {
+          setError("Unauthorized access. Please log in again.");
+        } else {
+          const formattedEvents = res.value.map((event) => ({
+            key: event.id,
+            eventName: event.eventType,
+            startDate: event.startTime,
+            endDate: event.endTime,
+            status: event.eventStatus ? "Active" : "Inactive",
+            course: event.schoolYear,
+            eventType: event.eventType,
+          }));
+          setEvents(formattedEvents);
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu sự kiện:", error);
+        setError("Lỗi khi tải danh sách sự kiện.");
       }
     };
     fetchData();
@@ -140,13 +147,13 @@ const ManageEvent = () => {
         }
       );
 
-      const res = await response.json();
-
       if (response.status === 200) {
         const updatedEvents = events.map((event) =>
           event.key === key ? { ...event, status: "Inactive" } : event
         );
         setEvents(updatedEvents); // Cập nhật lại trạng thái sự kiện
+        setSuccessMessage("Sự kiện đã được tắt thành công."); // Thông báo thành công
+        setError(""); // Xóa thông báo lỗi
       } else {
         setError("Đã xảy ra lỗi khi tắt sự kiện.");
       }
@@ -190,19 +197,20 @@ const ManageEvent = () => {
 
       const res = await response.json();
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         setEvents([
           ...events,
           {
-            key: res.value.id,
-            eventName: res.value.eventType,
-            startDate: res.value.startTime,
-            endDate: res.value.endTime,
-            status: res.value.eventStatus ? "Active" : "Inactive",
-            course: res.value.schoolYear,
-            eventType: res.value.eventType,
+            key: res.id,
+            eventName: res.eventType,
+            startDate: res.startTime,
+            endDate: res.endTime,
+            status: res.eventStatus ? "Active" : "Inactive",
+            course: res.schoolYear,
+            eventType: res.eventType,
           },
         ]);
+        setSuccessMessage("Sự kiện đã được thêm thành công.");
         setError(""); // Clear error
       } else {
         setError("Đã xảy ra lỗi khi thêm sự kiện.");
@@ -219,6 +227,10 @@ const ManageEvent = () => {
       <div className="container-page-manage-event">
         {error && <div className="error-message">{error}</div>}{" "}
         {/* Hiển thị thông báo lỗi */}
+        {successMessage && (
+          <div className="success-message">{successMessage}</div>
+        )}{" "}
+        {/* Hiển thị thông báo thành công */}
         <div className="header-event">
           <h3 className="title-event">Quản lý thời gian</h3>
           <div className="content-header">

@@ -1,5 +1,9 @@
 import { Table, Input, Button, Tooltip, Modal, notification } from "antd";
-import { EditOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  SearchOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 import { IoAdd } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import Header from "../Header/Header";
@@ -9,8 +13,8 @@ import { getMajor, addMajor, updateMajor } from "../../services/apiServices";
 const ManageIndustry = () => {
   const [searchText, setSearchText] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false); // Trạng thái có đang chỉnh sửa không
-  const [editingId, setEditingId] = useState(null); // Lưu id của ngành học đang chỉnh sửa
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [data, setData] = useState([]);
   const [newMajorId, setNewMajorId] = useState("");
@@ -27,7 +31,7 @@ const ManageIndustry = () => {
       if (res?.value) {
         const formattedData = res.value.map((item, index) => ({
           key: index + 1,
-          id: item.id, // Thêm id để phục vụ cho việc chỉnh sửa
+          id: item.id,
           code: item.majorId,
           name: item.majorName,
         }));
@@ -54,6 +58,38 @@ const ManageIndustry = () => {
     setEditingId(record.id);
   };
 
+  const handleDelete = (id) => {
+    Modal.confirm({
+      title: "Xóa ngành học",
+      content: "Bạn có chắc chắn muốn xóa ngành học này?",
+      onOk: async () => {
+        try {
+          const token = localStorage.getItem("access_token");
+          const res = await fetch(
+            `https://qlctt.kain.id.vn/major/delete/${id}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          // const data = await res.json();
+          if (res && res.status) {
+            openNotification("success", "Xóa ngành học thành công!");
+            fetchData(); // Tải lại dữ liệu
+          } else {
+            openNotification("error", "Xóa ngành học thất bại!");
+          }
+        } catch (error) {
+          console.error("Lỗi khi xoá ngành học:", error);
+          openNotification("error", "Đã xảy ra lỗi, vui lòng thử lại!");
+        }
+      },
+    });
+  };
+
   const handleAddMajor = async () => {
     if (!newMajorId || !newMajorName) {
       return openNotification("warning", "Vui lòng nhập đầy đủ thông tin!");
@@ -63,8 +99,8 @@ const ManageIndustry = () => {
       const res = await addMajor(newMajorId, newMajorName);
       if (res?.majorId) {
         openNotification("success", "Thêm ngành học thành công!");
-        await fetchData();
-        handleModalClose();
+        await fetchData(); // Tải lại dữ liệu
+        handleModalClose(); // Đóng modal sau khi thành công
       } else {
         openNotification("error", "Thêm ngành học thất bại!");
       }
@@ -83,8 +119,8 @@ const ManageIndustry = () => {
       const res = await updateMajor(editingId, newMajorId, newMajorName);
       if (res?.majorId) {
         openNotification("success", "Cập nhật ngành học thành công!");
-        await fetchData();
-        handleModalClose();
+        await fetchData(); // Tải lại dữ liệu
+        handleModalClose(); // Đóng modal sau khi thành công
       } else {
         openNotification("error", "Cập nhật ngành học thất bại!");
       }
@@ -134,6 +170,14 @@ const ManageIndustry = () => {
               onClick={() => handleEdit(record)}
             />
           </Tooltip>
+          <Tooltip title="Xoá">
+            <Button
+              type="danger"
+              shape="circle"
+              icon={<DeleteOutlined />}
+              onClick={() => handleDelete(record.id)}
+            />
+          </Tooltip>
         </div>
       ),
     },
@@ -176,7 +220,6 @@ const ManageIndustry = () => {
         </div>
       </div>
 
-      {/* Modal for adding or editing an industry */}
       <Modal
         title={isEditing ? "Chỉnh Sửa Ngành Học" : "Thêm Mới Ngành Học"}
         open={isModalOpen}
